@@ -1,0 +1,10 @@
+parameter,value,unit,status,note
+permit_price,10,model units per unit of risk-weighted compute,scenario,Baseline default (p)
+penalty_slope,50,model units per unit of detected shortfall,scenario,Baseline default (a)
+reference_audit_probability,0.25,probability per developer per year,scenario,Baseline default (rho). The figure sweeps 0.02 to 1
+max_underreport_share,0.40,share of true compute,scenario,Baseline stress-test cap on how much a developer can hide
+risk_multiplier,2.0,ratio,scenario,Baseline default (alpha). A high-risk run needs alpha permits per unit of compute
+high_risk_share,0.25,share of developers,scenario,Baseline default. Only these can gain from misreporting the risk class
+total_industry_compute,200,units of compute,scenario,"Held fixed across N, so N=4 means four large developers and N=200 means many small ones"
+firm_size_sd,0.6,log-scale SD,scenario,Lognormal spread of developer size (baseline agent model)
+penalty_cap_flat,100,model units per penalty,scenario,"Flat statutory maximum, set at 5% of the industry's yearly permit bill (0.05 x 10 x 200). A turnover-based cap would scale with size and behave like 'none'. Real flat caps: CA SB 53 $1m per violation; NY GBL 1427 (RAISE) $1m first / $3m subsequent. Size-scaled: EU AI Act Art. 101, max(3% turnover, EUR 15m)"

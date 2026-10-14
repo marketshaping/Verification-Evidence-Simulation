@@ -1,0 +1,21 @@
+instrument_id,instrument,parameter,low,central,high,unit,status,source,note
+CI-02,Third-party verifiers,margin,,evaluation,,,design,CI-02 row,"Checks the developer's own framework and statements, so it sits on the evaluation (risk-class) margin, not the compute margin"
+CI-02,Third-party verifiers,detection_max,0.10,0.40,0.70,probability per audit,scenario,AN-02 (CI-02),"No measured detection rate. EU ETS gives detection risk no value (AN-02 Published target). Wide range on purpose"
+CI-02,Third-party verifiers,noise_sd,,,,share of true compute,not used,,Binary check: a risk-class misreport is caught or not
+CI-02,Third-party verifiers,false_alarm,,,,probability per audit,unreported,AN-02 (CI-02),"Not reported; not used for a binary check"
+CI-02,Third-party verifiers,collusion_share,0.00,0.10,0.30,share of developers,scenario,AN-02 (CI-02),"Verifier is hired by the checked party; conflicts of interest are the first failure mode listed; 4 accreditations withdrawn (AN-02 Field observations)"
+CI-02,Third-party verifiers,collusion_multiplier,0.10,0.25,0.50,ratio,scenario,baseline parameter_schema.csv,Detection under collusion = detection_max x this. Baseline default 0.25
+CI-02,Third-party verifiers,audit_frequency,1,1,1,audits per developer per year,evidence,AN-02 (CI-02),"Every annual ETS report is verified (Art. 3). Recorded, not yet used: audit rate is swept as a policy lever"
+CI-02,Third-party verifiers,audit_cost,,,,person-days per audit,unreported,AN-02 (CI-02),"One lead auditor plus one independent reviewer per report; no person-days given. Not yet used"
+CI-03+04,Attested compute metering,margin,,compute,,,design,CI-03 row,"Attestation (CI-03) does not measure compute; it decides whether metering (CI-04) can be trusted. Modelled as one instrument"
+CI-03+04,Attested compute metering,detection_max,0.30,0.70,0.95,probability per audit,scenario,CI-03; AN-03 (CI-03),"Chance attestation is not defeated. Keys extracted with a <$1,000 interposer (TEE.fail, CI-03 Test results); 198 of 198 seals defeated in lab (AN-03 Measured results). No measured detection rate"
+CI-03+04,Attested compute metering,noise_sd,0.01,0.03,0.10,share of true compute,scenario,none yet,"Placeholder until Vir and Max code CI-04 rows"
+CI-03+04,Attested compute metering,false_alarm,0.01,0.02,0.05,probability per audit,scenario,none yet,"Sets the alarm threshold. Placeholder until CI-04 rows arrive"
+CI-03+04,Attested compute metering,timeliness_days,1,30,90,days,evidence,AN-03 (CI-03),"Remote data can reach IAEA HQ daily; unconnected equipment serviced at least every 3 months. Recorded, not yet used"
+CI-03+04,Attested compute metering,shared_failure,,yes,,yes/no,evidence,AN-03 (CI-03),"Loss of device or transmission channel stops both attestation and metering. Recorded, not yet used"
+CI-05,Satellite imagery,margin,,compute,,,design,CI-05 row,"Catches an undeclared facility, so detection does not depend on the size of the under-report"
+CI-05,Satellite imagery,detection_unconcealed,0.963,0.986,0.996,probability per screened site,evidence,CI-05 (Clymer 2025),"98.6% true positives at 1% false positives, about 230 test images, 95% CI 96.3-99.6%. Optical images of unconcealed US sites"
+CI-05,Satellite imagery,concealment_multiplier,0.10,0.50,0.90,ratio,scenario,CI-05; AN-01 (CI-05),"Untested against concealment (CI-05 Open questions). Effective detection = detection_unconcealed x this"
+CI-05,Satellite imagery,noise_sd,,,,share of true compute,not used,,Binary: a hidden facility is found or not
+CI-05,Satellite imagery,false_alarm,0.01,0.01,0.01,probability per screened site,evidence,CI-05 (Clymer 2025),Before human review. Recorded; not used for a binary check
+CI-05,Satellite imagery,timeliness_days,14,60,180,days,evidence,CI-05; AN-01 (CI-05),"Imaging cycle of weeks to months (coder's summary). Recorded, not yet used"

@@ -1,0 +1,16 @@
+parameter,model,meaning,default,unit_or_scale,evidence_target
+permit_price,both,Permit price per unit of risk-weighted compute,10.0,model units,Permit-market calibration
+risk_multiplier,agent,Multiplier applied to high-risk signal,2.0,ratio,Evaluation/risk-weight design
+compute_audit_probability,both,Probability a run receives compute audit,0.25,0-1,Inspection frequency and enforcement capacity
+compute_detection_probability,both,Conditional chance a compute violation is detected when audited,0.8,0-1,Verification evidence project output
+compute_penalty_slope,both,Linear expected penalty per unit detected shortfall,50.0,model units,Legal/administrative design
+evaluation_audit_probability,both,Probability reported risk class is re-verified,0.25,0-1,Evaluation verification capacity
+evaluation_detection_probability,both,Conditional chance risk-class misreport is detected,0.8,0-1,Evaluation evidence
+evaluation_penalty_slope,both,Penalty per unit of evaded risk-weighted compute,50.0,model units,Legal/administrative design
+compute_audit_cost,compliance,Public cost per compute audit probability unit,1.0,model units,Inspection effort evidence
+evaluation_audit_cost,compliance,Public cost per evaluation audit probability unit,1.0,model units,Inspection effort evidence
+enforcement_budget,compliance,Available enforcement budget,1.0,model units,Policy scenario
+meter_noise_sd,agent,Noise in metering signal,0.05,share,Hardware metering performance
+collusion_share,agent,Share of agents with collusive verification provider,0.0,0-1,Threat model
+collusion_detection_multiplier,agent,Detection probability multiplier under collusion,0.25,ratio,Threat model
+max_compute_underreport_share,agent,Maximum compute under-reporting allowed in stress test,0.4,0-1,Scenario assumption

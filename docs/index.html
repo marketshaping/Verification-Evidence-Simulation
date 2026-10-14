@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hidden Compute Playground</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>
+/* Layout: an inspector's console. Controls on the left, live readouts and two charts on the right, method notes below. */
+:root {
+  --bg: #F4F6F8; --panel: #FFFFFF; --ink: #131820; --ink-2: #48505D; --ink-3: #737C89;
+  --line: #DADFE6; --line-2: #EBEEF2; --accent: #0D6560; --accent-soft: #E1F0EE;
+  --n4: #C2410C; --n200: #1D4ED8;
+  --good: #1D7A3A; --good-bg: #E3F3E8; --warn: #9A5800; --warn-bg: #FBF0DC; --bad: #B42318; --bad-bg: #FCE6E3;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #13171C; --panel: #1B2027; --ink: #E7EAEE; --ink-2: #AAB2BD; --ink-3: #7D8692;
+  --line: #2C333D; --line-2: #232931; --accent: #45B9AE; --accent-soft: #173733;
+  --n4: #E46A2A; --n200: #4F86F0;
+  --good: #57C77A; --good-bg: #16301F; --warn: #E3A740; --warn-bg: #33270F; --bad: #F2735F; --bad-bg: #3A1A16;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #13171C; --panel: #1B2027; --ink: #E7EAEE; --ink-2: #AAB2BD; --ink-3: #7D8692;
+  --line: #2C333D; --line-2: #232931; --accent: #45B9AE; --accent-soft: #173733;
+  --n4: #E46A2A; --n200: #4F86F0;
+  --good: #57C77A; --good-bg: #16301F; --warn: #E3A740; --warn-bg: #33270F; --bad: #F2735F; --bad-bg: #3A1A16;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.005em; }
+h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.1; }
+h2 { font-size: 21px; }
+h3 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); }
+p { margin: 0; }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+header { display: grid; gap: 10px; margin-bottom: 22px; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.lede { max-width: 68ch; color: var(--ink-2); }
+.notice { display: inline-flex; gap: 8px; align-items: baseline; width: fit-content; max-width: 100%;
+  font-size: 13px; padding: 6px 10px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); }
+
+.console { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .console { grid-template-columns: minmax(0, 1fr); } }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+aside.panel { padding: 18px; display: grid; gap: 22px; }
+@media (min-width: 861px) { aside.panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow-y: auto; } }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; min-width: 0; }
+legend { padding: 0; margin-bottom: 4px; }
+
+.presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.presets button, .seg button { font: inherit; font-size: 13px; text-align: left; padding: 8px 10px; border-radius: 7px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; line-height: 1.25; }
+.presets button small { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.presets button[aria-pressed="true"], .seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.presets button:hover, .seg button:hover { border-color: var(--ink-3); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ctl { display: grid; gap: 4px; }
+.ctl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ctl label { font-size: 14px; font-weight: 500; }
+.ctl output { font-family: var(--font-mono); font-size: 13px; color: var(--ink); white-space: nowrap; }
+.ctl .hint { font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.ctl.off { opacity: 0.45; }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 2px 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { text-align: center; padding: 6px 10px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 500; }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+main { display: grid; gap: 20px; min-width: 0; }
+.readouts { padding: 18px; display: grid; gap: 16px; }
+.status { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pill { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.pill.good { background: var(--good-bg); color: var(--good); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.status p { color: var(--ink-2); font-size: 14px; min-width: 0; flex: 1 1 260px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border-radius: 8px; overflow: hidden; border: 1px solid var(--line-2); }
+@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.stat .k { font-size: 12px; color: var(--ink-2); line-height: 1.3; }
+.stat .v { font-family: var(--font-mono); font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stat .s { font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+
+.chart-card { padding: 18px; display: grid; gap: 10px; min-width: 0; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
+.chart-head p { color: var(--ink-2); font-size: 14px; max-width: 62ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
+.legend i.dash { border-top-style: dashed; }
+.chart { position: relative; width: 100%; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+.chart text { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
+.chart .axis-title { font-family: var(--font-body); font-size: 12px; fill: var(--ink-2); }
+.chart .grid { stroke: var(--line-2); stroke-width: 1; }
+.chart .zero { stroke: var(--line); stroke-width: 1; }
+.chart .cross { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
+.chart .now { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 4; }
+.chart .label { font-family: var(--font-body); font-size: 12px; font-weight: 500; fill: var(--ink); }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+  padding: 7px 9px; font-size: 12px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0,0,0,0.12); min-width: 150px; z-index: 2; }
+.tip b { font-weight: 600; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; }
+.tip .row span:last-child { font-family: var(--font-mono); }
+.tip .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+details { font-size: 13px; color: var(--ink-2); }
+summary { cursor: pointer; width: fit-content; }
+.tbl-wrap { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; font-size: 13px; width: 100%; }
+th, td { text-align: right; padding: 5px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-weight: 600; color: var(--ink-2); }
+td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+.notes { margin-top: 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 860px) { .notes { grid-template-columns: minmax(0, 1fr); } }
+.notes .panel { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-content: start; min-width: 0; }
+.notes li { min-width: 0; }
+.eq { max-width: 100%; }
+.notes ol, .notes ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--ink-2); }
+.notes li { max-width: 65ch; }
+.eq { font-family: var(--font-mono); font-size: 13px; background: var(--bg); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; color: var(--ink); }
+.chip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+.chip.ev { background: var(--good-bg); color: var(--good); }
+.chip.sc { background: var(--warn-bg); color: var(--warn); }
+.src td { font-family: var(--font-body); white-space: normal; text-align: left; vertical-align: top; color: var(--ink-2); }
+.src td.mono { font-family: var(--font-mono); color: var(--ink); white-space: nowrap; }
+footer { margin-top: 24px; font-size: 13px; color: var(--ink-3); max-width: 80ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">SPAR Fall 2026 · Verification evidence for compute governance · simulation track</span>
+    <h1>Hidden Compute Playground</h1>
+    <p class="lede">A developer declares its training compute to a regulator. Hiding part of it saves permit costs; getting caught brings a fine. Move the sliders to see how much compute developers would choose to hide, and how that changes with audit rate, fine size, measurement noise and the number of developers.</p>
+    <span class="notice"><b>Placeholder values.</b> Most defaults are assumptions waiting for coded evidence, so treat outputs as illustrations, not results.</span>
+  </header>
+
+  <div class="console">
+    <aside class="panel" aria-label="Settings">
+      <fieldset>
+        <legend><h3>Instrument</h3></legend>
+        <div class="presets" role="group" aria-label="Instrument presets">
+          <button type="button" id="p-meter" data-preset="meter">Attested metering<small>CI-03 + CI-04</small></button>
+          <button type="button" id="p-sat" data-preset="sat">Satellite imagery<small>CI-05</small></button>
+          <button type="button" id="p-tpv" data-preset="tpv">Third-party verifiers<small>CI-02</small></button>
+          <button type="button" id="p-custom" data-preset="custom">Custom<small>your own values</small></button>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label>How the check works</label></span>
+          <div class="seg" role="group" aria-label="Check type">
+            <button type="button" id="t-measure" data-type="measure">Measures compute</button>
+            <button type="button" id="t-passfail" data-type="passfail">Pass or fail</button>
+          </div>
+          <span class="hint" id="type-hint"></span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="d">Detection when checked</label><output id="d-o" for="d"></output></span>
+          <input type="range" id="d" min="0.05" max="1" step="0.01">
+          <span class="hint">Chance an audit flags a large violation, e.g. attestation not defeated, site not concealed.</span>
+        </div>
+        <div class="ctl" id="sd-ctl">
+          <span class="ctl-top"><label for="sd">Measurement noise</label><output id="sd-o" for="sd"></output></span>
+          <input type="range" id="sd" min="0.005" max="0.15" step="0.005">
+          <span class="hint">Error in a metered reading, as a share of true compute.</span>
+        </div>
+        <div class="ctl" id="f-ctl">
+          <span class="ctl-top"><label for="f">False-alarm setting</label><output id="f-o" for="f"></output></span>
+          <input type="range" id="f" min="0.001" max="0.2" step="0.001">
+          <span class="hint">How often an honest developer gets flagged. A stricter setting catches less shaving but flags more honest developers.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="coll">Developers with a colluding verifier</label><output id="coll-o" for="coll"></output></span>
+          <input type="range" id="coll" min="0" max="0.6" step="0.01">
+        </div>
+        <div class="ctl" id="cm-ctl">
+          <span class="ctl-top"><label for="cm">Detection left under collusion</label><output id="cm-o" for="cm"></output></span>
+          <input type="range" id="cm" min="0" max="1" step="0.05">
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><h3>Policy</h3></legend>
+        <div class="ctl">
+          <span class="ctl-top"><label for="rho">Audit rate</label><output id="rho-o" for="rho"></output></span>
+          <input type="range" id="rho" min="0.02" max="1" step="0.01">
+          <span class="hint">Chance a developer is audited in a year.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="a">Fine per unit hidden</label><output id="a-o" for="a"></output></span>
+          <input type="range" id="a" min="10" max="500" step="5">
+          <span class="hint">In model units. A permit costs <span class="num" id="p-inline">10</span> per unit, so 50 means a fine of 5× the permit price on what was hidden.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="p">Permit price</label><output id="p-o" for="p"></output></span>
+          <input type="range" id="p" min="2" max="40" step="1">
+        </div>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" id="capon"> Flat cap on any single fine</label>
+          <span class="ctl-top"><label for="cap" class="hint">Cap amount (model units)</label><output id="cap-o" for="cap"></output></span>
+          <input type="range" id="cap" min="10" max="1000" step="10">
+          <span class="hint">Like CA SB 53 ($1m per violation). A cap that scales with turnover, like the EU AI Act's, behaves like no cap here.</span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend><h3>Industry</h3></legend>
+        <div class="ctl">
+          <span class="ctl-top"><label for="n">Number of developers</label><output id="n-o" for="n"></output></span>
+          <input type="range" id="n" min="1" max="200" step="1">
+          <div class="seg" role="group" aria-label="Quick picks">
+            <button type="button" id="n4" data-n="4">4 frontier labs</button>
+            <button type="button" id="n20" data-n="20">20</button>
+            <button type="button" id="n200" data-n="200">200 small</button>
+          </div>
+          <span class="hint">Total compute stays fixed, so fewer developers means each one is bigger.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="mx">Most a developer can hide</label><output id="mx-o" for="mx"></output></span>
+          <input type="range" id="mx" min="0.05" max="1" step="0.05">
+        </div>
+      </fieldset>
+    </aside>
+
+    <main>
+      <section class="panel readouts" aria-live="polite">
+        <div class="status"><span class="pill" id="pill"></span><p id="verdict"></p></div>
+        <div class="stats">
+          <div class="stat"><span class="k">Share of all compute hidden</span><span class="v" id="s-hidden"></span><span class="s" id="s-hidden-sub"></span></div>
+          <div class="stat"><span class="k">Largest developer hides</span><span class="v" id="s-big"></span><span class="s" id="s-big-sub"></span></div>
+          <div class="stat"><span class="k">Audit rate needed to stop large-scale hiding</span><span class="v" id="s-need"></span><span class="s" id="s-need-sub"></span></div>
+          <div class="stat"><span class="k">Audits per year</span><span class="v" id="s-audits"></span><span class="s" id="s-audits-sub"></span></div>
+        </div>
+      </section>
+
+      <section class="panel chart-card">
+        <div class="chart-head">
+          <h2>Hidden compute by audit rate</h2>
+          <div class="legend"><span><i style="border-color: var(--n4)"></i>4 developers</span><span><i style="border-color: var(--n200)" class="dash"></i>200 developers</span></div>
+        </div>
+        <p class="hint" style="color: var(--ink-2); font-size: 14px;">Same total compute, split among few large or many small developers. The dotted line is your audit rate. Without a flat cap the two lines sit on top of each other.</p>
+        <div class="chart" id="c1"></div>
+        <details>
+          <summary>Show the numbers</summary>
+          <div class="tbl-wrap"><table id="t1"></table></div>
+        </details>
+      </section>
+
+      <section class="panel chart-card">
+        <div class="chart-head">
+          <h2>Why developers pick the amount they do</h2>
+          <div class="legend"><span><i style="border-color: var(--accent)"></i>Largest developer</span><span><i style="border-color: var(--accent)" class="dash"></i>Smallest developer</span></div>
+        </div>
+        <p style="color: var(--ink-2); font-size: 14px;">Expected gain per unit of a developer's own compute: permit money saved minus the expected fine. Each developer hides the amount at the top of its curve. With noisy measurement the curve peaks above zero, so small amounts of hiding always pay.</p>
+        <div class="chart" id="c2"></div>
+      </section>
+    </main>
+  </div>
+
+  <section class="notes">
+    <div class="panel">
+      <h2>How the model works</h2>
+      <ol>
+        <li>A developer with true compute <span class="mono">s</span> declares <span class="mono">(1 − Δ)·s</span>. Hiding the share <span class="mono">Δ</span> saves <span class="mono">p·Δ·s</span> in permits.</li>
+        <li>With probability <span class="mono">ρ</span> it is audited. The audit catches it with probability <span class="mono">d(Δ)</span>, and the fine is <span class="mono">a·Δ·s</span>, up to the cap if there is one.</li>
+        <li>A <b>measuring</b> check reads compute with noise <span class="mono">σ</span>. The alarm threshold is set so honest developers are flagged with probability <span class="mono">f</span>, so small under-reports hide inside the noise:
+          <div class="eq">d(Δ) = d · Φ((Δ − k·σ) / σ),   k = Φ⁻¹(1 − f)</div></li>
+        <li>A <b>pass-or-fail</b> check (a hidden site is found or not) has <span class="mono">d(Δ) = d</span> for any hiding at all, so developers hide either nothing or the maximum.</li>
+        <li>Each developer picks the <span class="mono">Δ</span> with the highest expected gain, and picks honesty when it's a tie. Large-scale hiding stops once <span class="mono">ρ·d·a ≥ p</span>.</li>
+        <li>Developer sizes follow a fixed lognormal spread and always add up to the same total compute.</li>
+      </ol>
+      <p style="color: var(--ink-2)">Extends the two-margin model in Christoph, <i>Risk-Weighted Compute Permit Markets under Imperfect Monitoring</i> (SSRN 6361077). The page calculates the same model as the project's Python code, using central values in place of the random draws.</p>
+    </div>
+    <div class="panel">
+      <h2>Where the defaults come from</h2>
+      <div class="tbl-wrap">
+        <table class="src">
+          <tr><th>Preset</th><th>Value</th><th>Basis</th></tr>
+          <tr><td>Attested metering</td><td class="mono">d 0.70</td><td><span class="chip sc">Scenario</span> Attestation keys extracted with a &lt;$1,000 device (CI-03); 198 of 198 seals defeated in lab tests (AN-03).</td></tr>
+          <tr><td></td><td class="mono">σ 3%, f 2%</td><td><span class="chip sc">Scenario</span> Waiting for CI-04 metering rows.</td></tr>
+          <tr><td>Satellite imagery</td><td class="mono">d 0.49</td><td><span class="chip ev">Evidence</span> 98.6% detection of unconcealed sites at 1% false alarms (Clymer 2025, CI-05) × <span class="chip sc">Scenario</span> 0.5 for concealment, which is untested.</td></tr>
+          <tr><td>Third-party verifiers</td><td class="mono">d 0.40</td><td><span class="chip sc">Scenario</span> No detection rate published; EU ETS gives detection risk no value (AN-02).</td></tr>
+          <tr><td></td><td class="mono">collusion 10%</td><td><span class="chip sc">Scenario</span> Verifier is hired by the checked party; four EU ETS accreditations withdrawn (AN-02).</td></tr>
+          <tr><td>Policy</td><td class="mono">p 10, a 50, ρ 0.25</td><td><span class="chip sc">Scenario</span> Defaults from the baseline model.</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>Built for the SPAR Fall 2026 project <i>Verification Evidence for Compute Governance</i> (simulation track). The values on this page are placeholders, so please don't cite the outputs.</footer>
+</div>
+
+<script>
+(() => {
+  // ---------- maths ----------
+  function erf(x) { // Abramowitz & Stegun 7.1.26
+    const s = Math.sign(x); x = Math.abs(x);
+    const t = 1 / (1 + 0.3275911 * x);
+    const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return s * y;
+  }
+  const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+  function invPhi(p) { // Acklam
+    const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+    const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+    const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+    const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+    const pl = 0.02425;
+    if (p < pl) { const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    if (p > 1 - pl) { const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+    const q = p - 0.5, r = q * q;
+    return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+  }
+
+  const TOTAL = 200, SIZE_SD = 0.6, G = 401;
+  function sizes(n) {
+    const w = Array.from({ length: n }, (_, i) => Math.exp(SIZE_SD * invPhi((i + 0.5) / n)));
+    const sum = w.reduce((x, y) => x + y, 0);
+    return w.map(v => v / sum * TOTAL).sort((x, y) => y - x); // largest first
+  }
+  function grid(mx) { return Array.from({ length: G }, (_, i) => mx * i / (G - 1)); }
+  function shape(S, g) { // detection per unit of d
+    if (S.type === "passfail") return g.map(x => (x > 0 ? 1 : 0));
+    const k = invPhi(1 - S.f);
+    return g.map(x => Phi((x - k * S.sd) / S.sd));
+  }
+  // best share hidden for a developer of size s with detection dEff
+  function best(s, dEff, rho, S, g, sh) {
+    const cap = S.capon ? S.cap : Infinity;
+    let bestI = 0, bestV = 0;
+    for (let i = 1; i < g.length; i++) {
+      const v = S.p * g[i] * s - rho * dEff * sh[i] * Math.min(S.a * g[i] * s, cap);
+      if (v > bestV + 1e-9) { bestV = v; bestI = i; }
+    }
+    return bestI;
+  }
+  function industry(n, rho, S, g, sh) {
+    const sz = sizes(n);
+    let hidden = 0, caught = 0;
+    const per = sz.map(s => {
+      const iN = best(s, S.d, rho, S, g, sh);
+      const iC = S.coll > 0 ? best(s, S.d * S.cm, rho, S, g, sh) : iN;
+      const h = (1 - S.coll) * g[iN] + S.coll * g[iC];
+      hidden += s * h;
+      caught += s * rho * ((1 - S.coll) * g[iN] * S.d * sh[iN] + S.coll * g[iC] * S.d * S.cm * sh[iC]);
+      return { s, delta: g[iN] };
+    });
+    return { hidden: hidden / TOTAL, caught: caught / TOTAL, per };
+  }
+
+  // ---------- state ----------
+  const PRESETS = {
+    meter: { type: "measure", d: 0.70, sd: 0.03, f: 0.02, coll: 0, cm: 0.25, mx: 0.40 },
+    sat:   { type: "passfail", d: 0.49, sd: 0.03, f: 0.01, coll: 0, cm: 0.25, mx: 0.40 },
+    tpv:   { type: "passfail", d: 0.40, sd: 0.03, f: 0.02, coll: 0.10, cm: 0.25, mx: 1.00 },
+  };
+  const S = { preset: "meter", ...PRESETS.meter, rho: 0.25, a: 50, p: 10, capon: false, cap: 100, n: 4 };
+  const $ = id => document.getElementById(id);
+  const pct = (x, dp = 1) => (x * 100).toFixed(x * 100 < 10 && dp ? dp : 0) + "%";
+  const pct1 = x => (x * 100).toFixed(1) + "%";
+
+  const sliders = {
+    d: v => v.toFixed(2), sd: v => pct1(v), f: v => pct1(v), coll: v => pct(v, 0), cm: v => pct(v, 0),
+    rho: v => v.toFixed(2), a: v => v.toFixed(0), p: v => v.toFixed(0), cap: v => v.toFixed(0), n: v => v.toFixed(0), mx: v => pct(v, 0)
+  };
+  function syncInputs() {
+    for (const k of Object.keys(sliders)) { $(k).value = S[k]; $(k + "-o").textContent = sliders[k](S[k]); }
+    $("capon").checked = S.capon;
+    $("p-inline").textContent = S.p;
+    document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.preset === S.preset)));
+    document.querySelectorAll("[data-type]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.type === S.type)));
+    document.querySelectorAll("[data-n]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.n === S.n)));
+    const pf = S.type === "passfail";
+    $("sd-ctl").classList.toggle("off", pf); $("f-ctl").classList.toggle("off", pf);
+    $("sd").disabled = pf; $("f").disabled = pf;
+    $("cap").disabled = !S.capon;
+    $("cm-ctl").classList.toggle("off", S.coll === 0);
+    $("type-hint").textContent = pf
+      ? "Finds the violation or not, e.g. a hidden site. Noise settings don't apply."
+      : "Reads the quantity with some error, so small under-reports can hide in the noise.";
+  }
+  for (const k of Object.keys(sliders)) {
+    $(k).addEventListener("input", e => {
+      S[k] = +e.target.value;
+      if (!["rho", "a", "p", "cap", "n", "mx"].includes(k)) S.preset = "custom";
+      if (k === "mx" && S.preset !== "custom") S.preset = "custom";
+      schedule();
+    });
+  }
+  $("capon").addEventListener("change", e => { S.capon = e.target.checked; schedule(); });
+  document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+    S.preset = b.dataset.preset; if (PRESETS[S.preset]) Object.assign(S, PRESETS[S.preset]); schedule();
+  }));
+  document.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { S.type = b.dataset.type; S.preset = "custom"; schedule(); }));
+  document.querySelectorAll("[data-n]").forEach(b => b.addEventListener("click", () => { S.n = +b.dataset.n; schedule(); }));
+
+  let queued = false;
+  function schedule() { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; render(); }); } }
+
+  // ---------- charts ----------
+  const NS = "http://www.w3.org/2000/svg";
+  function el(name, attrs, parent) { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function niceTicks(lo, hi) {
+    if (hi - lo <= 0) hi = lo + 0.05;
+    const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map(k => k * mag).find(v => v >= raw);
+    const a = Math.floor(lo / step + 1e-9) * step, b = Math.ceil(hi / step - 1e-9) * step;
+    const t = []; for (let v = a; v <= b + step / 2; v += step) t.push(+v.toFixed(10));
+    return { lo: a, hi: b, ticks: t, step };
+  }
+  function niceMax(v) { if (v <= 0) return 0.05; const steps = [0.02, 0.05, 0.1, 0.2, 0.25, 0.4, 0.5, 0.6, 0.8, 1, 2, 5, 10, 20, 50, 100]; for (const s of steps) if (v <= s) return s; return Math.ceil(v); }
+
+  function lineChart(host, cfg) {
+    host.innerHTML = "";
+    const W = 640, H = 290, m = { l: 52, r: 18, t: 14, b: 44 };
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": cfg.aria }, host);
+    const [x0, x1] = cfg.x, [y0, y1] = cfg.y;
+    const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
+    const Y = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
+    cfg.yTicks.forEach(t => {
+      el("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: Math.abs(t) < 1e-12 ? "zero" : "grid" }, svg);
+      el("text", { x: m.l - 8, y: Y(t) + 4, "text-anchor": "end" }, svg).textContent = cfg.yFmt(t);
+    });
+    cfg.xTicks.forEach(t => { el("text", { x: X(t), y: H - m.b + 18, "text-anchor": "middle" }, svg).textContent = cfg.xFmt(t); });
+    el("text", { x: (m.l + W - m.r) / 2, y: H - 6, "text-anchor": "middle", class: "axis-title" }, svg).textContent = cfg.xTitle;
+    const yt = el("text", { x: 14, y: (m.t + H - m.b) / 2, "text-anchor": "middle", class: "axis-title", transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})` }, svg);
+    yt.textContent = cfg.yTitle;
+    if (cfg.now != null) el("line", { x1: X(cfg.now), x2: X(cfg.now), y1: m.t, y2: H - m.b, class: "now" }, svg);
+    cfg.series.forEach(s => {
+      const d = s.pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(Math.max(y0, Math.min(y1, p[1]))).toFixed(1)}`).join("");
+      el("path", { d, fill: "none", stroke: s.color, "stroke-width": 2, "stroke-dasharray": s.dash ? "6 4" : "none", "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+    });
+    (cfg.markers || []).forEach(mk => {
+      el("circle", { cx: X(mk.x), cy: Y(mk.y), r: 5, fill: mk.color, stroke: "var(--panel)", "stroke-width": 2 }, svg);
+      if (mk.label) el("text", { x: Math.min(X(mk.x) + 8, W - m.r - 4), y: Y(mk.y) - 9, class: "label", "text-anchor": X(mk.x) > W - 140 ? "end" : "start" }, svg).textContent = mk.label;
+    });
+    // hover
+    const cross = el("line", { y1: m.t, y2: H - m.b, class: "cross", visibility: "hidden" }, svg);
+    const dots = cfg.series.map(s => el("circle", { r: 4, fill: s.color, stroke: "var(--panel)", "stroke-width": 2, visibility: "hidden" }, svg));
+    const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
+    const tip = document.createElement("div"); tip.className = "tip"; tip.hidden = true; host.appendChild(tip);
+    function move(ev) {
+      const r = svg.getBoundingClientRect();
+      const px = (ev.clientX - r.left) / r.width * W;
+      const xv = x0 + (px - m.l) / (W - m.l - m.r) * (x1 - x0);
+      const pts0 = cfg.series[0].pts;
+      let idx = 0, bd = Infinity; pts0.forEach((p, i) => { const dd = Math.abs(p[0] - xv); if (dd < bd) { bd = dd; idx = i; } });
+      const xx = pts0[idx][0];
+      cross.setAttribute("x1", X(xx)); cross.setAttribute("x2", X(xx)); cross.setAttribute("visibility", "visible");
+      cfg.series.forEach((s, j) => { const p = s.pts[idx]; dots[j].setAttribute("cx", X(p[0])); dots[j].setAttribute("cy", Y(Math.max(y0, Math.min(y1, p[1])))); dots[j].setAttribute("visibility", "visible"); });
+      tip.innerHTML = `<b>${cfg.tipX(xx)}</b>` + cfg.series.map(s => `<div class="row"><span><i class="sw" style="background:${s.color}"></i>${s.name}</span><span>${cfg.tipY(s.pts[idx][1])}</span></div>`).join("");
+      tip.hidden = false;
+      const hx = X(xx) / W * r.width, tw = tip.offsetWidth;
+      tip.style.left = (hx + 14 + tw > r.width ? hx - tw - 14 : hx + 14) + "px";
+      tip.style.top = "8px";
+    }
+    function leave() { cross.setAttribute("visibility", "hidden"); dots.forEach(d => d.setAttribute("visibility", "hidden")); tip.hidden = true; }
+    hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move); hit.addEventListener("pointerleave", leave);
+  }
+
+  // ---------- render ----------
+  const RHOS = Array.from({ length: 50 }, (_, i) => +(0.02 * (i + 1)).toFixed(2));
+  function render() {
+    syncInputs();
+    const g = grid(S.mx), sh = shape(S, g);
+    const cur = industry(S.n, S.rho, S, g, sh);
+    const big = cur.per[0], small = cur.per[cur.per.length - 1];
+    const need = S.p / (S.d * S.a);
+
+    // readouts
+    $("s-hidden").textContent = pct1(cur.hidden);
+    $("s-hidden-sub").textContent = `${pct1(cur.caught)} gets caught in an average year`;
+    $("s-big").textContent = pct1(big.delta);
+    $("s-big-sub").textContent = S.n > 1 ? `of its own compute. Smallest hides ${pct1(small.delta)}` : "of its own compute";
+    $("s-need").textContent = need > 1 ? "> 1" : need.toFixed(2);
+    $("s-need-sub").textContent = need > 1 ? "Can't be reached even auditing everyone yearly. Raise detection or the fine." : `= permit price ÷ (detection × fine)${S.capon ? ". Ignores the cap" : ""}`;
+    $("s-audits").textContent = (S.rho * S.n).toFixed(S.rho * S.n < 10 ? 1 : 0);
+    $("s-audits-sub").textContent = `${S.n} developer${S.n === 1 ? "" : "s"} × audit rate ${S.rho.toFixed(2)}`;
+
+    const pill = $("pill"), v = $("verdict");
+    const maxed = big.delta >= S.mx - 1e-9;
+    const capBinding = S.capon && maxed && S.rho >= need;
+    if (cur.hidden < 0.01) { pill.className = "pill good"; pill.textContent = "Little hiding"; v.textContent = "At these settings almost no compute goes undeclared."; }
+    else if (maxed) {
+      pill.className = "pill bad"; pill.textContent = "Hiding the maximum";
+      v.textContent = capBinding
+        ? "Audits would be strong enough, but the flat fine cap is small next to what the largest developers save, so they hide as much as they can."
+        : "Expected fines are below the permit savings, so the largest developer hides as much as it can. Raise the audit rate, detection or the fine.";
+    } else if (S.type === "measure") { pill.className = "pill warn"; pill.textContent = "Shaving inside the noise"; v.textContent = "Large-scale hiding is deterred, but under-reports small enough to sit inside the measurement noise still pay."; }
+    else { pill.className = "pill warn"; pill.textContent = "Some developers hide"; v.textContent = "Some developers, often those with a colluding verifier, still find hiding worth it."; }
+
+    // chart 1: sweep
+    const s4 = RHOS.map(r => [r, industry(4, r, S, g, sh).hidden]);
+    const s200 = RHOS.map(r => [r, industry(200, r, S, g, sh).hidden]);
+    const n1 = niceTicks(0, Math.max(S.mx, ...s4.map(p => p[1]), ...s200.map(p => p[1])));
+    const yMax1 = n1.hi, yt1 = n1.ticks;
+    lineChart($("c1"), {
+      aria: "Line chart of the share of compute hidden against the audit rate, for 4 and 200 developers",
+      x: [0, 1], y: [0, yMax1], xTicks: [0, 0.2, 0.4, 0.6, 0.8, 1], yTicks: yt1,
+      xFmt: t => t.toFixed(1), yFmt: t => +(t * 100).toFixed(1) + "%",
+      xTitle: "Audit rate (chance a developer is audited in a year)", yTitle: "Share of all compute hidden",
+      now: S.rho,
+      series: [{ name: "4 developers", color: "var(--n4)", pts: s4 }, { name: "200 developers", color: "var(--n200)", dash: true, pts: s200 }],
+      tipX: x => `Audit rate ${x.toFixed(2)}`, tipY: y => pct1(y),
+    });
+    const rows = RHOS.filter((r, i) => i % 5 === 4 || i === 0);
+    $("t1").innerHTML = `<tr><th>Audit rate</th><th>4 developers</th><th>200 developers</th></tr>` +
+      rows.map(r => { const i = RHOS.indexOf(r); return `<tr><td>${r.toFixed(2)}</td><td>${pct1(s4[i][1])}</td><td>${pct1(s200[i][1])}</td></tr>`; }).join("");
+
+    // chart 2: payoff curves per unit of own compute
+    const cap = S.capon ? S.cap : Infinity;
+    const curve = s => g.map((x, i) => [x, S.p * x - S.rho * S.d * sh[i] * Math.min(S.a * x, cap / s)]);
+    const cBig = curve(big.s), cSmall = curve(small.s);
+    const ys = [...cBig, ...cSmall].map(p => p[1]);
+    const n2 = niceTicks(Math.min(0, ...ys), Math.max(0.01, ...ys) * 1.12);
+    const yMin2 = n2.lo, yMax2 = n2.hi, yt2 = n2.ticks, step = n2.step;
+    const idxOf = dlt => Math.round(dlt / S.mx * (G - 1));
+    const series2 = [{ name: "Largest developer", color: "var(--accent)", pts: cBig }];
+    if (S.n > 1) series2.push({ name: "Smallest developer", color: "var(--accent)", dash: true, pts: cSmall });
+    lineChart($("c2"), {
+      aria: "Expected gain from hiding each share of compute, for the largest and smallest developer",
+      x: [0, S.mx], y: [yMin2, yMax2], xTicks: [0, S.mx / 4, S.mx / 2, 3 * S.mx / 4, S.mx], yTicks: yt2,
+      xFmt: t => (t * 100).toFixed(0) + "%", yFmt: t => t.toFixed(Math.abs(step) < 1 ? 1 : 0),
+      xTitle: "Share of own compute hidden", yTitle: "Expected gain per unit",
+      series: series2,
+      markers: [{ x: big.delta, y: cBig[idxOf(big.delta)][1], color: "var(--accent)", label: `Largest picks ${pct1(big.delta)}` }],
+      tipX: x => `Hide ${pct1(x)}`, tipY: y => y.toFixed(2),
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

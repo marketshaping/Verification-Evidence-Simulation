@@ -1,0 +1,37 @@
+instrument_id,instrument,margin,N,cap,rho,audits_per_year,rho_needed_p10,rho_needed_p50,rho_needed_p90,evaded_mean,evaded_p50,evaded_p90,undetected_mean,undetected_p90,p_undetected_over_10pct,evading_compute_share_mean,median_firm_underreport_p50,worlds,rho_for_under_5pct_hidden
+CI-02,Third-party verifiers,evaluation,4,none,0.25,1.0,0.3554,0.5023,0.8665,1.0,1.0,1.0,0.9134,1.0,0.9446,0.2495,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,4,none,0.5,2.0,0.3554,0.5023,0.8665,0.5777,1.0,1.0,0.5132,1.0,0.5526,0.1415,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,4,none,1.0,4.0,0.3554,0.5023,0.8665,0.1755,0.0,1.0,0.1531,1.0,0.1816,0.0399,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,4,flat,0.25,1.0,0.3554,0.5023,0.8665,1.0,1.0,1.0,0.9134,1.0,0.9446,0.2495,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,4,flat,0.5,2.0,0.3554,0.5023,0.8665,1.0,1.0,1.0,0.8291,1.0,0.8807,0.2483,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,4,flat,1.0,4.0,0.3554,0.5023,0.8665,1.0,1.0,1.0,0.6321,1.0,0.7044,0.2386,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,200,none,0.25,50.0,0.3554,0.5023,0.8665,1.0,1.0,1.0,0.9101,0.9741,1.0,0.2497,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,200,none,0.5,100.0,0.3554,0.5023,0.8665,0.5707,1.0,1.0,0.4972,0.9241,0.782,0.143,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,200,none,1.0,200.0,0.3554,0.5023,0.8665,0.1726,0.1195,0.2825,0.1512,0.2612,0.526,0.043,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,200,flat,0.25,50.0,0.3554,0.5023,0.8665,1.0,1.0,1.0,0.9101,0.9741,1.0,0.2497,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,200,flat,0.5,100.0,0.3554,0.5023,0.8665,0.6179,1.0,1.0,0.5331,0.9241,0.916,0.1552,0.0,2000,above 1
+CI-02,Third-party verifiers,evaluation,200,flat,1.0,200.0,0.3554,0.5023,0.8665,0.2005,0.1505,0.3371,0.1712,0.2981,0.618,0.0503,0.0,2000,above 1
+CI-03+04,Attested compute metering,compute,4,none,0.25,1.0,0.2431,0.3033,0.4271,0.276,0.4,0.4,0.2395,0.4,0.7265,0.7705,0.4,2000,0.7
+CI-03+04,Attested compute metering,compute,4,none,0.5,2.0,0.2431,0.3033,0.4271,0.0632,0.055,0.0955,0.0581,0.0922,0.068,0.1,0.055,2000,0.7
+CI-03+04,Attested compute metering,compute,4,none,1.0,4.0,0.2431,0.3033,0.4271,0.0392,0.035,0.065,0.0355,0.06,0.002,0.0035,0.035,2000,0.7
+CI-03+04,Attested compute metering,compute,4,flat,0.25,1.0,0.2431,0.3033,0.4271,0.4,0.4,0.4,0.3346,0.4,0.984,1.0,0.4,2000,above 1
+CI-03+04,Attested compute metering,compute,4,flat,0.5,2.0,0.2431,0.3033,0.4271,0.3997,0.4,0.4,0.2695,0.4,0.9205,0.9991,0.4,2000,above 1
+CI-03+04,Attested compute metering,compute,4,flat,1.0,4.0,0.2431,0.3033,0.4271,0.3944,0.4,0.4,0.1387,0.3079,0.561,0.9844,0.4,2000,above 1
+CI-03+04,Attested compute metering,compute,200,none,0.25,50.0,0.2431,0.3033,0.4271,0.276,0.4,0.4,0.2396,0.3586,0.7305,0.7705,0.4,2000,0.7
+CI-03+04,Attested compute metering,compute,200,none,0.5,100.0,0.2431,0.3033,0.4271,0.0632,0.055,0.0955,0.0579,0.0902,0.0545,0.1,0.055,2000,0.7
+CI-03+04,Attested compute metering,compute,200,none,1.0,200.0,0.2431,0.3033,0.4271,0.0392,0.035,0.065,0.0359,0.0595,0.0,0.0035,0.035,2000,0.7
+CI-03+04,Attested compute metering,compute,200,flat,0.25,50.0,0.2431,0.3033,0.4271,0.2766,0.4,0.4,0.2401,0.3586,0.734,0.7717,0.4,2000,0.7
+CI-03+04,Attested compute metering,compute,200,flat,0.5,100.0,0.2431,0.3033,0.4271,0.0634,0.055,0.1,0.058,0.0904,0.056,0.1004,0.055,2000,0.7
+CI-03+04,Attested compute metering,compute,200,flat,1.0,200.0,0.2431,0.3033,0.4271,0.0392,0.035,0.065,0.0359,0.0595,0.0,0.0035,0.035,2000,0.7
+CI-05,Satellite imagery,compute,4,none,0.25,1.0,0.283,0.4052,0.7152,0.3932,0.4,0.4,0.3423,0.4,0.9765,0.983,0.4,2000,0.7
+CI-05,Satellite imagery,compute,4,none,0.5,2.0,0.283,0.4052,0.7152,0.12,0.0,0.4,0.1018,0.4,0.2965,0.3,0.0,2000,0.7
+CI-05,Satellite imagery,compute,4,none,1.0,4.0,0.283,0.4052,0.7152,0.0126,0.0,0.0,0.0101,0.0,0.0305,0.0315,0.0,2000,0.7
+CI-05,Satellite imagery,compute,4,flat,0.25,1.0,0.283,0.4052,0.7152,0.4,0.4,0.4,0.3479,0.4,0.9935,1.0,0.4,2000,above 1
+CI-05,Satellite imagery,compute,4,flat,0.5,2.0,0.283,0.4052,0.7152,0.3999,0.4,0.4,0.3034,0.4,0.9565,0.9998,0.4,2000,above 1
+CI-05,Satellite imagery,compute,4,flat,1.0,4.0,0.283,0.4052,0.7152,0.3979,0.4,0.4,0.2036,0.4,0.761,0.9947,0.4,2000,above 1
+CI-05,Satellite imagery,compute,200,none,0.25,50.0,0.283,0.4052,0.7152,0.3932,0.4,0.4,0.3454,0.3754,0.983,0.983,0.4,2000,0.7
+CI-05,Satellite imagery,compute,200,none,0.5,100.0,0.283,0.4052,0.7152,0.12,0.0,0.4,0.102,0.3479,0.3,0.3,0.0,2000,0.7
+CI-05,Satellite imagery,compute,200,none,1.0,200.0,0.283,0.4052,0.7152,0.0126,0.0,0.0,0.0105,0.0,0.0315,0.0315,0.0,2000,0.7
+CI-05,Satellite imagery,compute,200,flat,0.25,50.0,0.283,0.4052,0.7152,0.3933,0.4,0.4,0.3454,0.3754,0.983,0.9831,0.4,2000,0.7
+CI-05,Satellite imagery,compute,200,flat,0.5,100.0,0.283,0.4052,0.7152,0.1206,0.0,0.4,0.1024,0.3479,0.3,0.3014,0.0,2000,0.7
+CI-05,Satellite imagery,compute,200,flat,1.0,200.0,0.283,0.4052,0.7152,0.0127,0.0,0.0,0.0106,0.0,0.0315,0.0318,0.0,2000,0.7
