@@ -15,6 +15,8 @@ For Nat, or anyone updating `data/placeholder_ranges.csv` after a codebook row i
    | Known evasion, collusion | `concealment_multiplier`, `collusion_share`, `collusion_multiplier` |
    | Chance tampering is found (CI-03) | `tamper_detection` in `data/regime.csv` |
    | Cost of evading (attestation, hidden site) | `tamper_cost`, `hidden_site_cost` in `data/regime.csv` |
+   | Detection by site size (CI-05) | `site_p50_mw`, `site_steepness` in `data/regime.csv` |
+   | Cost of training across several sites | `split_cost_per_site` in `data/regime.csv` |
    | Timeliness, inspection effort | Recorded but not yet used |
 
 2. **Write a range, not a point.** `low`, `central`, `high`. If the source gives one number, use its confidence interval. If there's none, use the spread across sources, or say why the range is what it is in `note`.

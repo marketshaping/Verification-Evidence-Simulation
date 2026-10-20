@@ -21,7 +21,7 @@ UNIT_INTERVAL = {
     "detection_max", "detection_unconcealed", "concealment_multiplier", "false_alarm",
     "collusion_share", "collusion_multiplier", "natural_audit_rate", "sanction_probability",
     "meter_catch_intact", "tamper_detection", "tamper_cost", "hidden_site_cost",
-    "verifier_tamper_factor", "verifier_hidden_factor",
+    "verifier_tamper_factor", "verifier_hidden_factor", "split_cost_per_site",
 }
 NUMERIC_SKIP = {"margin", "shared_failure"}
 REQUIRED = ["instrument_id", "instrument", "parameter", "low", "central", "high", "unit", "status", "source", "note"]

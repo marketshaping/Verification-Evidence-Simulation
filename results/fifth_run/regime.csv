@@ -1,0 +1,5 @@
+scenario,verifier,fine_needed_route_p10,fine_needed_route_p50,fine_needed_route_p90,fine_needed_multiplied_p10,fine_needed_multiplied_p50,fine_needed_multiplied_p90,ratio_route_to_multiplied_p50,share_deterred_at_current_fine_route,share_deterred_at_current_fine_multiplied,share_route_monitored,share_route_tamper,share_route_hidden_site
+main,honest,1.4669,1.9705,2.964,1.0317,1.0943,1.2383,1.7779,0.998,1.0,0.036,0.587,0.377
+main,lenient,1.7339,2.544,4.228,1.0518,1.1456,1.3689,2.1557,0.954,1.0,0.0675,0.671,0.2615
+worst_case,honest,2.8813,4.3814,7.3508,1.265,1.4223,1.6734,3.0051,0.629,1.0,0.0,0.1065,0.8935
+worst_case,lenient,3.9914,6.1715,10.6414,1.469,1.7655,2.3065,3.3545,0.27,1.0,0.004,0.305,0.691

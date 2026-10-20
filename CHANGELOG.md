@@ -1,5 +1,17 @@
 # Changelog
 
+## Fifth run, 20 October 2026
+
+**Model**
+- Run size: the cheater can split a hidden run across up to 64 sites. Imagery detection rises with site power (half at 3–10 MW), and each extra site costs 1–8% of the gain. Four new rows in `data/regime.csv`.
+- Run size is shown alongside the time needed to reach 10²⁶ FLOP.
+
+**Outputs:** `size.csv` and Figure 7. Everything from the fourth run is reproduced exactly.
+
+**Docs:** new `docs/DECISIONS.md`, a log of every modelling choice with its reason and what would change it. The playground has a new step for the combined regime.
+
+**Tests:** 22, up from 18.
+
 ## Fourth run, 20 October 2026
 
 **Model**

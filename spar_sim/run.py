@@ -14,6 +14,7 @@ Outputs
   sensitivity.csv, fig4_sensitivity.png   which unknown matters most
   regime.csv, fig5_regime.png            combined regime: route choice vs multiplied catch rates
   regime_instruments.csv, regime_sensitivity.csv, fig6_weakest_link.png   which instrument to improve
+  size.csv, fig7_size.png                fine needed against the size of a hidden run
   summary.csv, sweep.csv, fig_evasion_vs_audit_rate.png   one shared audit rate (as in runs 1 and 2)
   manifest.json, inputs/ what produced this folder
 """
@@ -192,6 +193,20 @@ def main(argv=None):
     write_csv(args.out / "regime_sensitivity.csv", reg_sens)
     plots.plot_regime(reg_head, args.out / "fig5_regime.png", policy["penalty_slope"] / policy["permit_price"], args.worlds)
     plots.plot_weakest_link(reg_head, reg_inst, reg.ROUTE_LABELS, args.out / "fig6_weakest_link.png", worlds=args.worlds)
+
+    # 7. Run size: satellite detection and hidden-site cost depend on how big the run is.
+    gpu_grid = np.round(np.geomspace(1e3, 1e6, 31))
+    size_rows = []
+    for k, scen in enumerate(scenarios):
+        sc = None if scen == "main" else scen
+        insts = {i.instrument_id: i for i in load_instruments(scenario=sc)}
+        x = reg.draw_inputs(insts, load_regime(sc), np.random.default_rng([args.seed, 500 + k]), args.worlds)
+        size_rows += reg.size_curve(x, gpu_grid, scen, "honest")
+    for row in size_rows:
+        row["days_to_1e26_flop"] = float(reg.days_to_threshold(row["gpus"]))
+    write_csv(args.out / "size.csv", size_rows)
+    plots.plot_size(size_rows, reg.days_to_threshold, args.out / "fig7_size.png",
+                    policy["penalty_slope"] / policy["permit_price"], args.worlds)
 
     write_manifest(args.out, vars(args), {"runtime_seconds": round(time.time() - t0, 1)})
     print(f"Wrote results to {args.out} in {time.time() - t0:.0f} s")

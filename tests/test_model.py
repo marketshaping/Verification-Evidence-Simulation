@@ -187,3 +187,34 @@ def test_route_catch_matches_monte_carlo():
     }
     for r in R.ROUTES:
         assert abs(sim[r] - p[r][0]) < 0.005, r
+
+
+# ---- Added 20 Oct: run size ----
+
+def test_site_detection_is_half_at_p50():
+    x = _regime_inputs(n=20)
+    d = R.site_detection(x["site_p50_mw"], x)
+    assert np.allclose(d, x["satellite_catch"] / 2)
+
+
+def test_one_huge_site_matches_size_free_route():
+    # A very large run in one site is seen at the full catch rate, as in the fourth run.
+    x = _regime_inputs(n=200)
+    need, sites = R.hidden_route_by_size(x, 1e9, max_sites=1)
+    p = R.route_catch(x)["hidden_site"]
+    assert np.allclose(need, (1 - x["hidden_site_cost"]) / p, rtol=1e-6) and np.all(sites == 1)
+
+
+def test_bigger_runs_never_need_a_bigger_fine_for_the_hidden_route():
+    x = _regime_inputs(n=300)
+    prev = None
+    for g in np.geomspace(1e3, 1e6, 15):
+        need, _ = R.hidden_route_by_size(x, g)
+        if prev is not None:
+            assert np.all(need <= prev + 1e-9)
+        prev = need
+
+
+def test_threshold_time_is_sensible():
+    # 100k H100s at 40% utilisation reach 1e26 FLOP in about a month.
+    assert 25 < R.days_to_threshold(100_000) < 35

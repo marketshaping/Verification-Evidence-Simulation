@@ -10,16 +10,17 @@ Simulation track for SPAR Fall 2026, *Verification Evidence for Compute Governan
 make setup                   # once: creates .venv and installs packages
 source .venv/bin/activate
 make test                    # checks the input files, then runs the tests
-make run RUN=fourth_run      # full run into results/fourth_run/ (about 3 minutes)
+make run RUN=sixth_run       # full run into results/sixth_run/ (about 3 minutes)
 make quick                   # smoke test into results/scratch/ (ignored by git)
 ```
 
-Without `make`: `python -m spar_sim.checks`, `python -m pytest -q`, `python -m spar_sim.run --out results/fourth_run`.
+Without `make`: `python -m spar_sim.checks`, `python -m pytest -q`, `python -m spar_sim.run --out results/sixth_run`.
 
 Every results folder holds a `manifest.json` (command, seed, code commit, package versions, input fingerprints) and a copy of the inputs, so any number can be traced back and rerun. Tests also run on GitHub on every push.
 
 ## Latest results
 
+- `results/fifth_run/RESULTS.md` (20 Oct): run size. Small, slow runs are the hard ones to deter.
 - `results/fourth_run/RESULTS.md` (20 Oct): the combined regime, where a cheater picks one route past all the checks. Also everything from the third run, unchanged.
 - `results/third_run/RESULTS.md` (20 Oct): fine needed by instrument, worst case, meter error, few vs many developers, and which unknowns matter most.
 
@@ -38,10 +39,11 @@ Every results folder holds a `manifest.json` (command, seed, code commit, packag
 | `spar_sim/run.py` | Runs everything into one results folder |
 | `spar_sim/checks.py` | Input-file checks |
 | `spar_sim/plots.py` | Figures |
-| `tests/` | Tests (18) |
+| `tests/` | Tests (22) |
 | `results/` | One folder per run; earlier runs are kept for comparison |
 | `docs/MODEL.md` | How the model works and what it leaves out |
 | `docs/ADDING_EVIDENCE.md` | How to turn a coded row into inputs |
+| `docs/DECISIONS.md` | Every modelling choice, why it was made, and what would change it |
 | `docs/index.html` | Interactive playground |
 | `baseline/` | The original model, kept for reference |
 | `CHANGELOG.md` | What changed, run by run |

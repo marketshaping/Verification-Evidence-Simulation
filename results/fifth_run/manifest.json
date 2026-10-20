@@ -1,0 +1,27 @@
+{
+  "created_utc": "2026-10-20T19:40:39+00:00",
+  "command": "python -m spar_sim.run --out results/fifth_run",
+  "args": {
+    "out": "results/fifth_run",
+    "worlds": "2000",
+    "seed": "20261014",
+    "scenarios": "main,worst_case",
+    "quick": "False"
+  },
+  "git_commit": null,
+  "uncommitted_changes": null,
+  "python": "3.13.16",
+  "packages": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2"
+  },
+  "inputs_sha256": {
+    "placeholder_ranges.csv": "b4f4d4485253deb5646a1e15110144519804b386c9bc75c2ce4ed923265126eb",
+    "policy_ranges.csv": "b73d49ba697ec9b401ce065dede669daad701003d09e694bf0f2eeeaad251ad9",
+    "policy_scenarios.csv": "9909f7511dbcd1ddf5399951bd7b8996c28c67345a4ddcb3c97e2e964361ea4c",
+    "regime.csv": "6550befa75cf7051a6b753db5fda5d344f2702b49760af1e07e0bc8cb475c9a3",
+    "scenarios/worst_case.csv": "6098c1811b7828461c07b495052d9d3d05297938fe1134ce66267635b3ecfa3c"
+  },
+  "runtime_seconds": 127.4
+}

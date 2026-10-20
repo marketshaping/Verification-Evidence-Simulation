@@ -1,0 +1,21 @@
+scenario,input,label,status,spearman,abs_spearman
+main,satellite_catch,Satellite catch rate (with hiding),scenario,-0.453,0.453
+main,tamper_detection,Chance tampering is found,scenario,-0.4287,0.4287
+main,meter_rate,How often meter is checked,scenario,-0.3494,0.3494
+main,verifier_tamper_factor,Verifier fooled by fake meter data,scenario,-0.211,0.211
+main,verifier_catch,Verifier catch rate,analogue,-0.2007,0.2007
+main,hidden_site_cost,Cost of a hidden site,scenario,-0.1774,0.1774
+main,satellite_rate,How often satellite screens,scenario,-0.1452,0.1452
+main,tamper_cost,Cost of defeating attestation,scenario,-0.1038,0.1038
+main,verifier_hidden_factor,Verifier sees a hidden site,scenario,-0.0536,0.0536
+main,meter_catch_intact,"Meter catch rate, attestation intact",evidence,-0.0275,0.0275
+worst_case,satellite_catch,Satellite catch rate (with hiding),scenario,-0.7518,0.7518
+worst_case,hidden_site_cost,Cost of a hidden site,scenario,-0.3749,0.3749
+worst_case,verifier_hidden_factor,Verifier sees a hidden site,scenario,-0.3347,0.3347
+worst_case,satellite_rate,How often satellite screens,scenario,-0.233,0.233
+worst_case,verifier_catch,Verifier catch rate,analogue,-0.177,0.177
+worst_case,tamper_detection,Chance tampering is found,scenario,-0.0689,0.0689
+worst_case,meter_catch_intact,"Meter catch rate, attestation intact",scenario,0.0368,0.0368
+worst_case,meter_rate,How often meter is checked,scenario,-0.0328,0.0328
+worst_case,tamper_cost,Cost of defeating attestation,scenario,-0.0167,0.0167
+worst_case,verifier_tamper_factor,Verifier fooled by fake meter data,scenario,-0.0167,0.0167

@@ -1,0 +1,17 @@
+scenario,verifier,instrument,label,fine_needed_now_p50,fine_needed_if_perfect_p50,fine_needed_if_removed_p50,share_worlds_helped_by_perfecting
+main,honest,verifier,CI-02 verifier,1.9705,1.4512,2.8152,1.0
+main,honest,meter,CI-04 meter (attestation intact),1.9705,1.9705,2.7521,0.036
+main,honest,attestation,CI-03 tamper detection,1.9705,1.6353,3.9754,0.587
+main,honest,satellite,CI-05 satellite imagery,1.9705,1.7676,14.2324,0.377
+main,lenient,verifier,CI-02 verifier,2.544,1.4714,2.859,1.0
+main,lenient,meter,CI-04 meter (attestation intact),2.544,2.5244,9.6607,0.0675
+main,lenient,attestation,CI-03 tamper detection,2.544,1.9423,14.376,0.671
+main,lenient,satellite,CI-05 satellite imagery,2.544,2.3455,52.2229,0.2615
+worst_case,honest,verifier,CI-02 verifier,4.3814,2.952,8.0412,1.0
+worst_case,honest,meter,CI-04 meter (attestation intact),4.3814,4.3814,4.391,0.0
+worst_case,honest,attestation,CI-03 tamper detection,4.3814,4.3529,4.9987,0.1065
+worst_case,honest,satellite,CI-05 satellite imagery,4.3814,2.4913,14.2967,0.8935
+worst_case,lenient,verifier,CI-02 verifier,6.1715,2.935,7.9325,1.0
+worst_case,lenient,meter,CI-04 meter (attestation intact),6.1715,6.1715,10.2839,0.004
+worst_case,lenient,attestation,CI-03 tamper detection,6.1715,5.6249,14.6276,0.305
+worst_case,lenient,satellite,CI-05 satellite imagery,6.1715,4.1742,52.1515,0.691

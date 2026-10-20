@@ -174,3 +174,76 @@ def sensitivity(x: dict[str, np.ndarray], scenario: str, statuses: dict[str, str
         rows.append({"scenario": scenario, "input": key, "label": label, "status": (statuses or {}).get(key, ""),
                      "spearman": r, "abs_spearman": abs(r)})
     return sorted(rows, key=lambda r: -r["abs_spearman"])
+
+
+# ---------------------------------------------------------------------------
+# Run size (added 20 Oct): satellite detection and hidden-site cost depend on
+# how big the hidden run is and how many sites it is split across.
+#
+# A run of G GPUs draws G * kw_per_gpu / 1000 MW. Split across k sites, each
+# site draws P / k. Imagery finds a site of power s with probability
+#     d_site(s) = catch_unhidden_site_hidden * f(s),
+#     f(s) = 1 / (1 + (site_p50_mw / s) ** site_steepness),
+# so f is 1/2 at site_p50_mw and rises with power. The chance at least one of
+# k sites is found in a year is 1 - (1 - rate * d_site(P / k)) ** k. Each
+# extra site adds split_cost_per_site to the cost of the route. The cheater
+# picks the k that is hardest to deter.
+# ---------------------------------------------------------------------------
+
+MAX_SITES = 64
+
+
+def site_detection(power_mw, x):
+    """Chance imagery finds one site of the given power, per screening (shape: like power_mw)."""
+    f = 1.0 / (1.0 + (x["site_p50_mw"] / power_mw) ** x["site_steepness"])
+    return x["satellite_catch"] * f
+
+
+def hidden_route_by_size(x: dict[str, np.ndarray], gpus: float, sanction_probability=1.0,
+                         max_sites: int = MAX_SITES) -> tuple[np.ndarray, np.ndarray]:
+    """Fine needed to deter the hidden-site route for a run of `gpus`, and the number of sites chosen."""
+    k = np.arange(1, max_sites + 1)[:, None]                     # (K, 1)
+    power = gpus * x["kw_per_gpu"][None, :] / 1000.0             # (1, W) MW
+    d = site_detection(power / k, {key: v[None, :] for key, v in x.items()})
+    sat = 1 - (1 - x["satellite_rate"][None, :] * d) ** k        # chance any site is found
+    ver = x["verifier_catch"] * x["verifier_rate"] * x["verifier_hidden_factor"]
+    p = 1 - (1 - ver[None, :]) * (1 - sat)
+    cost = np.minimum(x["hidden_site_cost"][None, :] + x["split_cost_per_site"][None, :] * (k - 1), 1.0)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        need = np.where(cost >= 1, 0.0, (1 - cost) / (sanction_probability * p))
+    return need.max(axis=0), k[need.argmax(axis=0), 0]
+
+
+def fine_needed_by_size(x: dict[str, np.ndarray], gpus: float) -> dict[str, np.ndarray]:
+    """Fine needed for the whole regime when the hidden-site route depends on run size."""
+    p = route_catch(x)
+    need_monitored = 1 / p["monitored"]
+    need_tamper = (1 - x["tamper_cost"]) / p["tamper"]
+    need_hidden, sites = hidden_route_by_size(x, gpus)
+    need = np.maximum.reduce([need_monitored, need_tamper, need_hidden])
+    return {"need": need, "need_hidden": need_hidden, "sites": sites,
+            "hidden_sets_fine": need_hidden >= np.maximum(need_monitored, need_tamper)}
+
+
+def size_curve(x: dict[str, np.ndarray], gpu_grid: np.ndarray, scenario: str, verifier: str) -> list[dict]:
+    rows = []
+    for g in gpu_grid:
+        r = fine_needed_by_size(x, float(g))
+        mw = g * np.median(x["kw_per_gpu"]) / 1000
+        rows.append({
+            "scenario": scenario, "verifier": verifier, "gpus": int(g), "run_mw_median": float(mw),
+            "fine_needed_p10": pct(r["need"], 10), "fine_needed_p50": pct(r["need"], 50), "fine_needed_p90": pct(r["need"], 90),
+            "fine_needed_hidden_route_p50": pct(r["need_hidden"], 50),
+            "sites_chosen_p50": float(np.median(r["sites"])),
+            "share_hidden_route_sets_fine": float(np.mean(r["hidden_sets_fine"])),
+        })
+    return rows
+
+
+# For labelling only: how long a run of a given size takes to reach a compute threshold.
+FLOP_THRESHOLD = 1e26                 # e.g. the 10^26 FLOP lines in recent rules and proposals
+EFFECTIVE_FLOPS_PER_GPU = 989e12 * 0.4  # H100 dense BF16 peak x 40% utilisation (assumption)
+
+
+def days_to_threshold(gpus):
+    return FLOP_THRESHOLD / (np.asarray(gpus, float) * EFFECTIVE_FLOPS_PER_GPU) / 86400

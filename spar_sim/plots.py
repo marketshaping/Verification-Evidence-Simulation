@@ -250,3 +250,46 @@ def plot_weakest_link(head_rows, inst_rows, route_labels, path, verifier="honest
     fig.tight_layout(rect=(0, 0.04, 1, 0.92))
     fig.savefig(path, dpi=200)
     plt.close(fig)
+
+
+def plot_size(rows, days_fn, path, current_multiple=5.0, worlds=2000):
+    """Figure 7. Fine needed against the size of the hidden run."""
+    titles = {"main": "Main ranges", "worst_case": "Worst case"}
+    cols = {"main": "#2a78d6", "worst_case": "#eb6834"}
+    fig, ax = plt.subplots(figsize=(7.4, 4.4))
+    for scen in dict.fromkeys(r["scenario"] for r in rows):
+        sel = [r for r in rows if r["scenario"] == scen and r["verifier"] == "honest"]
+        g = np.array([r["gpus"] for r in sel])
+        ax.fill_between(g, [r["fine_needed_p10"] for r in sel], [r["fine_needed_p90"] for r in sel],
+                        color=cols[scen], alpha=0.13, lw=0)
+        ax.plot(g, [r["fine_needed_p50"] for r in sel], color=cols[scen], lw=2, label=titles.get(scen, scen))
+    ax.axhline(current_multiple, color=INK_2, ls=":", lw=1)
+    ax.text(1.05e3, current_multiple * 1.07, f"fine = {current_multiple:g}× gain (main assumption)", fontsize=7, color=INK_2)
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlim(1e3, 1e6); ax.set_ylim(1, 30)
+    ax.set_yticks([1, 2, 5, 10, 20], ["1×", "2×", "5×", "10×", "20×"]); ax.minorticks_off()
+    ticks = [1e3, 3e3, 1e4, 3e4, 1e5, 3e5, 1e6]
+    ax.set_xticks(ticks, ["1k", "3k", "10k", "30k", "100k", "300k", "1M"])
+    ax.set_xlabel("Size of the hidden run (H100-class GPUs)")
+    ax.set_ylabel("Fine needed, as a multiple of the gain from hiding")
+    top = ax.secondary_xaxis("top")
+    top.set_xticks(ticks, [_days_label(days_fn(t)) for t in ticks], fontsize=7, color=INK_2)
+    top.set_xlabel("Time that size needs to reach 10²⁶ FLOP", fontsize=8, color=INK_2)
+    top.tick_params(length=0, which="both")
+    top.minorticks_off()
+    ax.legend(fontsize=8, loc="upper right")
+    fig.suptitle("Figure 7. Small, slow runs are the hard ones to deter", fontsize=10.5, x=0.01, ha="left")
+    _footer(fig, f"Combined regime, honest verifier, {worlds:,} draws; line: median, band: 10th–90th percentile. The cheater splits the run "
+                 "across as many hidden sites as suits it; imagery finds half of sites at 3–10 MW; each extra site costs 1–8% of the gain. "
+                 "Time axis assumes 40% utilisation.")
+    fig.tight_layout(rect=(0, 0.07, 1, 0.95))
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+
+
+def _days_label(days):
+    if days >= 365:
+        return f"{days / 365:.1f} yr"
+    if days >= 60:
+        return f"{days / 30.4:.0f} mo"
+    return f"{days:.0f} d"

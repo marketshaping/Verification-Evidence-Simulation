@@ -104,6 +104,10 @@ button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visibl
 .bar .v { font-family: var(--font-mono); font-size: 14px; text-align: right; }
 .fill.save { background: var(--n4); }
 .fill.fine { background: var(--accent); }
+.fill.rt { background: var(--ink-3); opacity: 0.55; }
+.fill.rt.top { background: var(--n4); opacity: 1; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; font-size: 13.5px; }
+.checks label { display: flex; gap: 6px; align-items: center; }
 .verdict { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .verdict p { color: var(--ink-2); font-size: 14px; min-width: 0; flex: 1 1 260px; }
 .pill { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
@@ -195,7 +199,8 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
       <a href="#noise"><span>2</span>Two kinds of check</a>
       <a href="#model"><span>3</span>The full model</a>
       <a href="#evidence"><span>4</span>What we know</a>
-      <a href="#limits"><span>5</span>What it leaves out</a>
+      <a href="#regime"><span>5</span>Several checks at once</a>
+      <a href="#limits"><span>6</span>What it leaves out</a>
       <a href="#words"><span>·</span>Word list</a>
     </nav>
   </header>
@@ -203,7 +208,7 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
   <!-- ================= STEP 1 ================= -->
   <section class="panel lesson" id="trade" aria-labelledby="h-trade">
     <div class="lesson-head">
-      <span class="stepno">Step 1 of 5</span>
+      <span class="stepno">Step 1 of 6</span>
       <h2 id="h-trade">The basic trade: is cheating worth it?</h2>
       <p>Picture one lab deciding whether to hide one unit of compute. If it hides it, it saves the permit price: <b>10</b>. But it might get caught. What it expects to pay depends on three things multiplied together: how often it gets checked, how likely a check is to catch it, and how big the fine is.</p>
     </div>
@@ -254,7 +259,7 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
   <!-- ================= STEP 2 ================= -->
   <section class="panel lesson" id="noise" aria-labelledby="h-noise">
     <div class="lesson-head">
-      <span class="stepno">Step 2 of 5</span>
+      <span class="stepno">Step 2 of 6</span>
       <h2 id="h-noise">Two kinds of check, and why small cheating can slip through</h2>
       <p>Some checks are <b>pass or fail</b>. A satellite photo either shows a hidden data centre or it doesn’t. If you hide anything at all, you risk being caught, so a lab either hides nothing or as much as it can.</p>
       <p>Other checks <b>measure</b>. A meter on the chips counts how much compute was used, and the regulator compares that with what the lab reported. But meters are never exactly right. If the regulator raised the alarm at every tiny gap, it would keep accusing honest labs. So it only raises the alarm when the gap is bigger than normal meter error. That leaves room for a lab to under-report a little and stay inside the “normal error” zone.</p>
@@ -305,7 +310,7 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
   <!-- ================= STEP 3 ================= -->
   <section class="panel lesson" id="model" aria-labelledby="h-model">
     <div class="lesson-head">
-      <span class="stepno">Step 3 of 5</span>
+      <span class="stepno">Step 3 of 6</span>
       <h2 id="h-model">The full model: a whole industry of labs</h2>
       <p>Now put steps 1 and 2 together for many labs of different sizes. Each lab picks how much to hide to get the best deal for itself. Pick a type of check to load its values, then move the sliders. This is the same model as the project’s Python code, using middle values instead of random draws.</p>
     </div>
@@ -431,7 +436,7 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
   <!-- ================= STEP 4 ================= -->
   <section class="panel lesson" id="evidence" aria-labelledby="h-ev">
     <div class="lesson-head">
-      <span class="stepno">Step 4 of 5</span>
+      <span class="stepno">Step 4 of 6</span>
       <h2 id="h-ev">What we actually know about catch rates</h2>
       <p>Step 1 showed that everything hinges on the chance a check catches cheating. Here is what the project has found so far, as of 18 October 2026. The labels say how much to trust each number.</p>
       <p class="hint" style="font-size: 13px;"><span class="chip ev">Measured</span> a real test of this kind of check · <span class="chip an">Stand-in</span> a number from a similar setting (taxes, nuclear) · <span class="chip sc">Guess</span> a placeholder · <span class="chip no">Nothing yet</span> no number found</p>
@@ -452,12 +457,108 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
       </table>
     </div>
     <p class="lookfor"><b>The upshot.</b> Most checks run yearly or all the time, so (with a fine of 5× the saving) the bar is about <b>20%</b>, not 80%. So the useful question for each check is: <b>what is the cheapest way to beat it, and does it still catch cheaters at least 20% of the time against that?</b> Go back to step 1 and press “Check every lab every year” to see the bar drop.</p>
+    <p class="lookfor"><b>Added 20 October.</b> The project now asks the question the other way round: at the rate each check already runs, <b>how big must the fine be</b>? With honest checkers and middle values, about 2–3× the saving. A checker who goes easy needs about 10×, and a deliberately hidden site about 9×. Step 5 shows what happens when the checks run together.</p>
   </section>
 
   <!-- ================= STEP 5 ================= -->
+  <section class="panel lesson" id="regime" aria-labelledby="h-reg">
+    <div class="lesson-head">
+      <span class="stepno">Step 5 of 6</span>
+      <h2 id="h-reg">Several checks at once: the cheater picks one way past them</h2>
+      <p>Real rules use several checks together: an outside checker, meters on the chips, and satellite photos. A cheater doesn’t face them one at a time. It picks <b>one way of hiding</b> and only meets the checks that can see that way:</p>
+      <ol class="hint" style="font-size: 14px; color: var(--ink-2); padding-left: 20px; display: grid; gap: 4px;">
+        <li><b>Under-report on chips that are being metered.</b> The checker and the meter can catch it.</li>
+        <li><b>Break the chip checks, then under-report.</b> The meter goes blind. An inspection might find the tampering, and the checker is partly fooled by the fake meter readings.</li>
+        <li><b>Use a hidden site.</b> Only satellite photos can find it, plus a checker who notices gaps such as chip purchases that don’t add up. Setting one up costs money.</li>
+      </ol>
+      <p>The fine has to stop <b>every</b> way, so the way that’s easiest to get away with sets the fine. Every check here runs about once a year. This page uses middle values, so its numbers come out a little lower than the project’s full runs, which average over the whole range of each guess (2.0× with middle-range inputs, 4.4× in the worst case).</p>
+    </div>
+    <div class="two">
+      <div class="controls">
+        <div class="ctl">
+          <span class="ctl-top"><label for="r-vd">Outside checker catches it</label><output id="r-vd-o" for="r-vd"></output></span>
+          <input type="range" id="r-vd" min="0" max="1" step="0.01">
+          <span class="hint">35% is a stand-in from tax audits.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="r-md">Meter catches it (chip checks working)</label><output id="r-md-o" for="r-md"></output></span>
+          <input type="range" id="r-md" min="0" max="1" step="0.01">
+          <span class="hint">90% from a lab test of GPU monitoring. The only measured number here.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="r-td">Inspection finds broken chip checks</label><output id="r-td-o" for="r-td"></output></span>
+          <input type="range" id="r-td" min="0" max="1" step="0.01">
+          <span class="hint">A guess. In one lab test every seal was broken, and some attacks left no trace.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="r-sd">Satellite finds a hidden site</label><output id="r-sd-o" for="r-sd"></output></span>
+          <input type="range" id="r-sd" min="0" max="1" step="0.01">
+          <span class="hint">98.6% for sites nobody tried to hide, halved for hiding (a guess).</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="r-hc">Cost of a hidden site</label><output id="r-hc-o" for="r-hc"></output></span>
+          <input type="range" id="r-hc" min="0" max="0.9" step="0.01">
+          <span class="hint">As a share of what hiding saves. A guess.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="r-a">Fine, compared with the saving</label><output id="r-a-o" for="r-a"></output></span>
+          <input type="range" id="r-a" min="1" max="20" step="0.5">
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label>Which checks are in use</label></span>
+          <div class="checks">
+            <label><input type="checkbox" id="r-on-v" checked> Outside checker</label>
+            <label><input type="checkbox" id="r-on-m" checked> Chip meters</label>
+            <label><input type="checkbox" id="r-on-t" checked> Chip inspections</label>
+            <label><input type="checkbox" id="r-on-s" checked> Satellite photos</label>
+          </div>
+        </div>
+        <details>
+          <summary>More settings</summary>
+          <div class="ctl" style="margin-top: 10px;">
+            <span class="ctl-top"><label for="r-tc">Cost of breaking the chip checks</label><output id="r-tc-o" for="r-tc"></output></span>
+            <input type="range" id="r-tc" min="0" max="0.5" step="0.01">
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="r-vt">Checker still works with fake meter readings</label><output id="r-vt-o" for="r-vt"></output></span>
+            <input type="range" id="r-vt" min="0" max="1" step="0.05">
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="r-vh">Checker spots a hidden site</label><output id="r-vh-o" for="r-vh"></output></span>
+            <input type="range" id="r-vh" min="0" max="1" step="0.05">
+            <span class="hint">Both as a share of the checker’s normal catch rate.</span>
+          </div>
+        </details>
+        <div class="try">
+          <h3>Try this</h3>
+          <div class="row">
+            <button type="button" data-r="main">Middle values</button>
+            <button type="button" data-r="worst">Worst case</button>
+            <button type="button" data-r="lenient">A checker who goes easy</button>
+            <button type="button" data-r="nosat">No satellites</button>
+            <button type="button" data-r="goodmeter">A perfect meter</button>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="verdict" aria-live="polite"><span class="pill" id="r-pill"></span><p id="r-verdict"></p></div>
+        <div class="stats">
+          <div class="stat"><span class="k">Fine needed, cheater picks a way</span><span class="v" id="r-need"></span><span class="s">× the saving</span></div>
+          <div class="stat"><span class="k">Fine needed if you multiply the catch rates</span><span class="v" id="r-mult"></span><span class="s">× the saving. Too low: assumes every check sees every cheater</span></div>
+          <div class="stat"><span class="k">Way the cheater would use</span><span class="v" id="r-route" style="font-size: 18px; font-family: var(--font-body);"></span><span class="s" id="r-route-s"></span></div>
+          <div class="stat"><span class="k">Chance a cheater on that way is caught</span><span class="v" id="r-catch"></span><span class="s">in a year</span></div>
+        </div>
+        <div class="chart-head"><h3>Fine needed to stop each way of hiding</h3></div>
+        <div class="bars" id="r-bars"></div>
+        <p class="lookfor"><b>What to notice.</b> The longest bar sets the fine. Press “A perfect meter”: almost nothing changes, because cheaters don’t go through the meter anyway. Press “No satellites”: the hidden-site bar shoots up. Multiplying catch rates, the usual shortcut, always gives a smaller number than the longest bar, so it makes the rules look stronger than they are.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STEP 6 ================= -->
   <section class="panel lesson" id="limits" aria-labelledby="h-lim">
     <div class="lesson-head">
-      <span class="stepno">Step 5 of 5</span>
+      <span class="stepno">Step 6 of 6</span>
       <h2 id="h-lim">What this model leaves out</h2>
       <p>The model is a useful way to think, but it simplifies a lot. Keep these in mind before drawing conclusions.</p>
     </div>
@@ -465,7 +566,7 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
       <li><b>The fine is a guess.</b><p>Everything in step 1 depends on how big the fine is compared with what a lab gains. Under real US laws there’s no permit to save on, and labs also face costs beyond fines (reputation, legal trouble). We don’t know the real ratio yet.</p></li>
       <li><b>Being caught doesn’t always mean being punished.</b><p>The model assumes every caught lab pays. In practice there are appeals and arguments. Iran being caught by nuclear inspectors led to reports, not fines.</p></li>
       <li><b>Cheaters pick the easiest way out.</b><p>Lab tests report an average over the tricks they tried. A real cheater uses whatever works best, so the number that matters is the worst case. For GPU monitoring that’s about 43%, not 98%.</p></li>
-      <li><b>Checks don’t simply add up.</b><p>A cheater looks for one path past all the checks, for example small hidden sites plus broken chip checks. Chip meters rely on chip checks, so if one fails, both do.</p></li>
+      <li><b>Only three ways of hiding, and their costs are guesses.</b><p>Step 5 covers monitored chips, broken chip checks and hidden sites. A cheater could also split its compute across several routes, or use routes we haven’t listed. How much each route costs is a guess.</p></li>
       <li><b>A photo flag is only the start.</b><p>After a satellite flags a site, someone must inspect it and be let in. With 1% false alarms across thousands of factories, that’s hundreds of visits. Inspection capacity, not the 98.6%, sets the real catch rate.</p></li>
       <li><b>Between countries, fines aren’t the point.</b><p>For satellites, or chip checks on another country, the cheater wants to get ahead, not save money, and the punishment isn’t a fine. The real question is whether cheating is caught <i>before the training run is finished</i>.</p></li>
       <li><b>Small under-reporting isn’t the safety risk.</b><p>The “shaving” in step 2 matters for permit money. For safety, the question is whether a whole dangerous training run can be hidden.</p></li>
@@ -494,7 +595,7 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
     </dl>
   </section>
 
-  <footer>Built for the SPAR Fall 2026 project <i>Verification Evidence for Compute Governance</i> (simulation track). Based on Christoph, <i>Risk-Weighted Compute Permit Markets under Imperfect Monitoring</i> (SSRN 6361077). Values updated 18 October 2026 from the project’s second run. Most values are placeholders, so please don’t cite the outputs.</footer>
+  <footer>Built for the SPAR Fall 2026 project <i>Verification Evidence for Compute Governance</i> (simulation track). Based on Christoph, <i>Risk-Weighted Compute Permit Markets under Imperfect Monitoring</i> (SSRN 6361077). Values updated 20 October 2026 from the project’s fourth run. Most values are placeholders, so please don’t cite the outputs.</footer>
 </div>
 
 <script>
@@ -876,8 +977,69 @@ footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
     });
   }
 
+
+  /* ---------- lesson 5: combined regime (spar_sim/regime.py, middle values) ---------- */
+  const RMAIN = { vd: 0.35, md: 0.90, td: 0.50, sd: 0.49, hc: 0.30, tc: 0.05, vt: 0.60, vh: 0.10, a: 5, on: { v: true, m: true, t: true, s: true } };
+  const RTRY = {
+    main: {},
+    worst: { md: 0.43, td: 0.15, sd: 0.10 },
+    lenient: { vd: 0.09 },
+    nosat: { on: { v: true, m: true, t: true, s: false } },
+    goodmeter: { md: 1 },
+  };
+  const R = JSON.parse(JSON.stringify(RMAIN));
+  const RFMT = { vd: pct0, md: pct0, td: pct0, sd: pct0, hc: pct0, tc: pct0, vt: pct0, vh: pct0, a: v => (+v).toFixed(v % 1 ? 1 : 0) + "×" };
+  Object.keys(RFMT).forEach(k => $("r-" + k).addEventListener("input", e => { R[k] = +e.target.value; renderR(); }));
+  ["v", "m", "t", "s"].forEach(k => $("r-on-" + k).addEventListener("change", e => { R.on[k] = e.target.checked; renderR(); }));
+  document.querySelectorAll("[data-r]").forEach(b => b.addEventListener("click", () => {
+    Object.assign(R, JSON.parse(JSON.stringify(RMAIN)), JSON.parse(JSON.stringify(RTRY[b.dataset.r]))); renderR();
+  }));
+  const ROUTES = [
+    { k: "monitored", name: "Under-report on metered chips" },
+    { k: "tamper", name: "Break the chip checks, then under-report" },
+    { k: "hidden", name: "Use a hidden site" },
+  ];
+  function renderR() {
+    Object.keys(RFMT).forEach(k => { $("r-" + k).value = R[k]; $("r-" + k + "-o").textContent = RFMT[k](R[k]); });
+    ["v", "m", "t", "s"].forEach(k => { $("r-on-" + k).checked = R.on[k]; });
+    const v = R.on.v ? R.vd : 0, m = R.on.m ? R.md : 0, t = R.on.t ? R.td : 0, sa = R.on.s ? R.sd : 0;
+    const P = {
+      monitored: 1 - (1 - v) * (1 - m),
+      tamper: 1 - (1 - v * R.vt) * (1 - t),
+      hidden: 1 - (1 - v * R.vh) * (1 - sa),
+    };
+    const cost = { monitored: 0, tamper: R.tc, hidden: R.hc };
+    const need = {}; ROUTES.forEach(r => { need[r.k] = P[r.k] > 0 ? (1 - cost[r.k]) / P[r.k] : Infinity; });
+    const top = ROUTES.reduce((a, b) => (need[b.k] > need[a.k] ? b : a));
+    const n = need[top.k];
+    const pm = 1 - (1 - v) * (1 - m) * (1 - t) * (1 - sa);
+    const mult = pm > 0 ? 1 / pm : Infinity;
+    const fmt = x => (isFinite(x) ? (x >= 100 ? "100+" : x.toFixed(1)) : "Never");
+    $("r-need").textContent = fmt(n);
+    $("r-mult").textContent = fmt(mult);
+    $("r-route").textContent = top.name;
+    $("r-route-s").textContent = "The way that needs the biggest fine to stop";
+    $("r-catch").textContent = pct0(P[top.k]);
+    const scale = 20;
+    $("r-bars").innerHTML = ROUTES.map(r => {
+      const x = need[r.k], w = isFinite(x) ? Math.min(x, scale) / scale * 100 : 100;
+      return `<div class="bar"><span class="k">${r.name}</span><div class="track"><div class="fill rt${r.k === top.k ? " top" : ""}" style="width:${w}%"></div></div><span class="v">${fmt(x)}${isFinite(x) ? "×" : ""}</span></div>`;
+    }).join("");
+    const pill = $("r-pill"), vtxt = $("r-verdict");
+    if (R.a >= n) {
+      pill.className = "pill good"; pill.textContent = "Honest reporting pays";
+      vtxt.textContent = `A fine of ${RFMT.a(R.a)} the saving beats every way of hiding. The hardest to stop is “${top.name.toLowerCase()}”, which needs ${fmt(n)}×.`;
+    } else {
+      pill.className = "pill bad"; pill.textContent = "Cheating pays";
+      vtxt.textContent = isFinite(n)
+        ? `With a fine of ${RFMT.a(R.a)} the saving, a cheater would “${top.name.toLowerCase()}”. Stopping it needs a fine of ${fmt(n)}×. Multiplying the catch rates would wrongly say ${fmt(mult)}× is enough.`
+        : `Nothing can catch a cheater who “${top.name.toLowerCase()}”, so no fine is big enough. Turn a check back on.`;
+    }
+  }
+
   renderL1();
   renderL2();
   renderModel();
+  renderR();
 })();
 </script>
