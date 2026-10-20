@@ -38,7 +38,16 @@ Ranked by how much each would change the answer (Figure 4 in `results/third_run/
 | 5 | **Real compute-meter error** (a better meter *catch rate* is low priority) | CI-04 | Cloud billing disputes; GPU counter accuracy studies |
 | 6 | **How often tampering with attestation is found** | CI-03 | Red-team rates and inspection findings, not just proofs of concept like TEE.fail. This matters most in the main ranges |
 
-**Suggested codebook change:** add two fields to each analogue row: *typical fine relative to the gain from cheating*, and *share of detected violations that led to a penalty*. Even a rough range helps, because the model currently assumes 5× and 100%.
+**Suggested codebook change: four new labels for column O.** The 5 Oct labels (detection, false alarms, metering noise, audit frequency, shared failure, timeliness, audit cost) are working, but the inputs that matter most now have no label:
+
+1. **Fine vs gain:** how big penalties are compared with what cheating saves.
+2. **Punishment follow-through:** the share of detected violations that ended in a penalty.
+3. **Evasion cost:** what it cost to beat the check (equipment, a separate site, lost efficiency).
+4. **Worst-case catch rate:** the catch rate against the best evasion tested, not the average.
+
+Even a rough range helps, because the model currently assumes a fine of 5× the gain and that every caught developer is punished. The full mapping of codebook fields to model inputs is in `docs/ADDING_EVIDENCE.md`.
+
+**Already coded and useful:** Joon's CI-05 row cites a table of detection by facility size (Koopmanschap & Barten, Table 5), which can replace the model's guessed site-size curve. Vir's CI-04 note (a meter with 1% error lets a lab hide about 3% of declared compute) matches the model's result for meter error from a different direction.
 
 ## Proposed next steps for the simulation (to 14 December)
 
@@ -50,6 +59,6 @@ Ranked by how much each would change the answer (Figure 4 in `results/third_run/
 
 ## Questions for the team
 
-1. Can coders add the two sanction fields to analogue rows before 9 Nov?
+1. Can we add the four column O labels, and can coders tag evidence for them before 9 Nov?
 2. Who agrees the worst-case values? I'd suggest each instrument's coder pair.
 3. Should the midterm say "detection is one of three inputs that matter most" instead of "the parameter that matters most"?

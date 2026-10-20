@@ -31,6 +31,7 @@ Status of each input (`evidence`, `analogue`, `scenario`) is in the `status` col
 
 | # | Date | Decision | Why | What would change it |
 |---|---|---|---|---|
+| N7 | 20 Oct | **Proposed: four new column O labels**: fine vs gain, punishment follow-through, evasion cost, worst-case catch rate. The 5 Oct labels stay. Full mapping in `docs/ADDING_EVIDENCE.md`. | The inputs that matter most in the sensitivity analysis and the combined regime have no label, so coders aren't tagging evidence for them. | Sidar and the coders agreeing, or preferring separate columns. |
 | N1 | 20 Oct | **Worst case = the weakest route the evidence knows about**: GPU detector against white-box LoRA (42.6%); hiding cuts satellite detection to 2–30%; 10–50% of verifiers lenient; tamper detection 5–50%. | A strategic cheater uses the best evasion available, not the average one tested. | Coder pairs to agree these values. **Open: not yet agreed with the team.** |
 | N2 | 20 Oct | **Chance a caught developer is punished = 1 in the main runs**, 0.3–1 in the sensitivity analysis. **Fine = 5× the gain in the main runs**, 1–20× in the sensitivity analysis. | No coded figure for either. Iran's IAEA findings led to referrals, not penalties. | The two sanction fields proposed for the codebook. |
 | N3 | 18 Oct | **CI-02 catch rate from tax audits** (thorough audits find about a third), **not** from Dyck, Morse & Zingales. | Dyck et al. (auditors make 10.5% of fraud detections) measures who finds frauds, not a catch rate per check. It is used as evidence for lenient verifiers instead. | A measured verifier catch rate. |
@@ -57,6 +58,7 @@ Status of each input (`evidence`, `analogue`, `scenario`) is in the `status` col
 ## Open decisions
 
 - **Worst-case values (N1)** need agreeing with each coder pair.
-- **Sanction fields (N2):** will coders add them to the analogue rows?
+- **Sanction fields (N2) and new column O labels (N7):** to be agreed with Sidar and the coders.
+- **Detection by site size:** the CI-05 row cites Koopmanschap & Barten, Table 5. The model's 3–10 MW midpoint should be replaced with those numbers once the paper is in hand.
 - **Run size (I9):** the 3–10 MW midpoint and the 1–8% per-site cost are guesses anchored on Clymer's misses. They need a coder's view.
 - **Timeliness model (Q2):** not started.
