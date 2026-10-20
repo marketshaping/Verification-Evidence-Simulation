@@ -45,6 +45,7 @@ Every results folder holds a `manifest.json` (command, seed, code commit, packag
 | `docs/ADDING_EVIDENCE.md` | How to turn a coded row into inputs |
 | `docs/DECISIONS.md` | Every modelling choice, why it was made, and what would change it |
 | `docs/index.html` | Interactive playground |
+| `paper/` | Midterm report source and the scripts that draw its figures |
 | `baseline/` | The original model, kept for reference |
 | `CHANGELOG.md` | What changed, run by run |
 
