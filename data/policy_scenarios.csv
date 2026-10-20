@@ -8,3 +8,4 @@ high_risk_share,0.25,share of developers,scenario,Baseline default. Only these c
 total_industry_compute,200,units of compute,scenario,"Held fixed across N, so N=4 means four large developers and N=200 means many small ones"
 firm_size_sd,0.6,log-scale SD,scenario,Lognormal spread of developer size (baseline agent model)
 penalty_cap_flat,100,model units per penalty,scenario,"Flat statutory maximum, set at 5% of the industry's yearly permit bill (0.05 x 10 x 200). A turnover-based cap would scale with size and behave like 'none'. Real flat caps: CA SB 53 $1m per violation; NY GBL 1427 (RAISE) $1m first / $3m subsequent. Size-scaled: EU AI Act Art. 101, max(3% turnover, EUR 15m)"
+sanction_probability,1.0,probability,scenario,"Chance a detected violation is actually punished. 1 in the main runs; varied in the sensitivity analysis (data/policy_ranges.csv)"

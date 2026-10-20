@@ -1,0 +1,6 @@
+# Exact versions used for results/third_run (Python 3.13.16).
+# To match them: pip install -r requirements-lock.txt
+numpy==2.5.3
+scipy==1.18.1
+matplotlib==3.11.2
+pytest==9.1.1

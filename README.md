@@ -1,39 +1,51 @@
 # Verification-Evidence-Simulation
 
-Simulation for SPAR Fall 2026, *Verification Evidence for Compute Governance*. It takes evidence from the codebook and works out how much compute developers would hide under a given audit rate, fine and verification instrument. It extends Christoph, *Risk-Weighted Compute Permit Markets under Imperfect Monitoring* (SSRN 6361077).
+Simulation track for SPAR Fall 2026, *Verification Evidence for Compute Governance*. It takes the evidence coded in the codebook and works out how big a fine must be, at each instrument's normal checking rate, for honest compute reporting to pay. It extends Christoph, *Risk-Weighted Compute Permit Markets under Imperfect Monitoring* (SSRN 6361077).
 
-**Current inputs are mostly placeholders. Don't cite the outputs.**
+**Most inputs are still guesses. Don't cite the outputs as findings.** Each input is labelled `evidence`, `analogue` or `scenario`; see `docs/MODEL.md`.
 
 ## Run
 
 ```bash
-pip install -r requirements.txt
-python -m pytest -q        # checks
-python -m spar_sim.run     # ~1.5 min, writes results/first_run/
+make setup                   # once: creates .venv and installs packages
+source .venv/bin/activate
+make test                    # checks the input files, then runs the tests
+make run RUN=fourth_run      # full run into results/fourth_run/ (about 3 minutes)
+make quick                   # smoke test into results/scratch/ (ignored by git)
 ```
 
-Playground: open `docs/index.html` in a browser. Sliders show the same model live.
+Without `make`: `python -m spar_sim.checks`, `python -m pytest -q`, `python -m spar_sim.run --out results/fourth_run`.
 
-## Change the inputs
+Every results folder holds a `manifest.json` (command, seed, code commit, package versions, input fingerprints) and a copy of the inputs, so any number can be traced back and rerun. Tests also run on GitHub on every push.
 
-| File | What to edit |
-|---|---|
-| `data/placeholder_ranges.csv` | Instrument inputs (detection, noise, false alarms, collusion). One row per instrument × parameter: `low,central,high`, `status` (`evidence` or `scenario`), `source` (codebook row, e.g. `AN-03 (CI-03)`) |
-| `data/policy_scenarios.csv` | Permit price, fine, audit rate, penalty cap, total compute |
+## Latest results
 
-Rules: a number from a coded row is `evidence` with its source. Anything else is `scenario`. Leave `noise_sd` blank for pass-or-fail checks.
+`results/third_run/RESULTS.md` (20 Oct): fine needed by instrument, worst case, meter error, few vs many developers, and which unknowns matter most.
 
-## Files
+## Layout
 
 | Path | |
 |---|---|
+| `data/placeholder_ranges.csv` | Instrument inputs. One row per instrument × parameter: `low,central,high`, `status`, `source` |
+| `data/scenarios/` | Files that override some rows, e.g. `worst_case.csv` |
+| `data/policy_scenarios.csv` | Permit price, fine, flat cap, total compute |
+| `data/policy_ranges.csv` | Ranges for the fine and chance of punishment, used in the sensitivity analysis |
 | `spar_sim/model.py` | The model |
-| `spar_sim/run.py` | The run: instruments × 4 or 200 developers × cap or no cap × audit rates |
-| `results/first_run/` | `RESULTS.md` (summary), `summary.csv`, `sweep.csv`, figure |
+| `spar_sim/analysis.py` | Headline table, meter-error curve, sensitivity analysis |
+| `spar_sim/run.py` | Runs everything into one results folder |
+| `spar_sim/checks.py` | Input-file checks |
+| `spar_sim/plots.py` | Figures |
+| `tests/` | Tests (14) |
+| `results/` | One folder per run. `first_run` and `second_run` are kept for comparison |
+| `docs/MODEL.md` | How the model works and what it leaves out |
+| `docs/ADDING_EVIDENCE.md` | How to turn a coded row into inputs |
 | `docs/index.html` | Interactive playground |
-| `baseline/` | The original model files, kept for reference |
+| `baseline/` | The original model, kept for reference |
+| `CHANGELOG.md` | What changed, run by run |
 
 ## Save changes to GitHub
+
+Run these from this folder, never from your home folder:
 
 ```bash
 git add .

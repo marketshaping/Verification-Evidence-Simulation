@@ -1,18 +1,17 @@
 <!doctype html>
 <html lang="en">
-<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Hidden Compute Playground</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
 <style>
-/* Layout: an inspector's console. Controls on the left, live readouts and two charts on the right, method notes below. */
+/* Layout: an inspector's workbook. Five short lessons, each a panel with one control set and one live picture, building up to the full model. */
 :root {
-  --bg: #F4F6F8; --panel: #FFFFFF; --ink: #131820; --ink-2: #48505D; --ink-3: #737C89;
+  --bg: #F4F6F8; --panel: #FFFFFF; --ink: #131820; --ink-2: #48505D; --ink-3: #6B7480;
   --line: #DADFE6; --line-2: #EBEEF2; --accent: #0D6560; --accent-soft: #E1F0EE;
   --n4: #C2410C; --n200: #1D4ED8;
   --good: #1D7A3A; --good-bg: #E3F3E8; --warn: #9A5800; --warn-bg: #FBF0DC; --bad: #B42318; --bad-bg: #FCE6E3;
@@ -21,88 +20,100 @@
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #13171C; --panel: #1B2027; --ink: #E7EAEE; --ink-2: #AAB2BD; --ink-3: #7D8692;
+  --bg: #13171C; --panel: #1B2027; --ink: #E7EAEE; --ink-2: #AAB2BD; --ink-3: #8A939F;
   --line: #2C333D; --line-2: #232931; --accent: #45B9AE; --accent-soft: #173733;
   --n4: #E46A2A; --n200: #4F86F0;
   --good: #57C77A; --good-bg: #16301F; --warn: #E3A740; --warn-bg: #33270F; --bad: #F2735F; --bad-bg: #3A1A16;
   color-scheme: dark;
 } }
 :root[data-theme="dark"] {
-  --bg: #13171C; --panel: #1B2027; --ink: #E7EAEE; --ink-2: #AAB2BD; --ink-3: #7D8692;
+  --bg: #13171C; --panel: #1B2027; --ink: #E7EAEE; --ink-2: #AAB2BD; --ink-3: #8A939F;
   --line: #2C333D; --line-2: #232931; --accent: #45B9AE; --accent-soft: #173733;
   --n4: #E46A2A; --n200: #4F86F0;
   --good: #57C77A; --good-bg: #16301F; --warn: #E3A740; --warn-bg: #33270F; --bad: #F2735F; --bad-bg: #3A1A16;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
-.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 56px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: 0.005em; }
-h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.1; }
-h2 { font-size: 21px; }
-h3 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); }
+h1 { font-size: clamp(30px, 4.4vw, 42px); line-height: 1.08; }
+h2 { font-size: clamp(22px, 2.6vw, 26px); line-height: 1.15; }
+h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); }
 p { margin: 0; }
 .mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+b { font-weight: 600; }
 
-header { display: grid; gap: 10px; margin-bottom: 22px; }
+/* ---------- header ---------- */
+header { display: grid; gap: 12px; }
 .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
-.lede { max-width: 68ch; color: var(--ink-2); }
+.lede { max-width: 66ch; color: var(--ink-2); font-size: 16px; }
 .notice { display: inline-flex; gap: 8px; align-items: baseline; width: fit-content; max-width: 100%;
   font-size: 13px; padding: 6px 10px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); }
+nav.steps { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+nav.steps a { font-size: 13px; text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--panel);
+  padding: 5px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: baseline; }
+nav.steps a span { font-family: var(--font-mono); color: var(--accent); font-size: 12px; }
+nav.steps a:hover { border-color: var(--accent); }
 
-.console { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 20px; align-items: start; }
-@media (max-width: 860px) { .console { grid-template-columns: minmax(0, 1fr); } }
-
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
-aside.panel { padding: 18px; display: grid; gap: 22px; }
-@media (min-width: 861px) { aside.panel { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow-y: auto; } }
-fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; min-width: 0; }
-legend { padding: 0; margin-bottom: 4px; }
-
-.presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.presets button, .seg button { font: inherit; font-size: 13px; text-align: left; padding: 8px 10px; border-radius: 7px;
-  border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; line-height: 1.25; }
-.presets button small { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
-.presets button[aria-pressed="true"], .seg button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
-.presets button:hover, .seg button:hover { border-color: var(--ink-3); }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ---------- lesson panels ---------- */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.lesson { padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; scroll-margin-top: 16px; }
+.lesson-head { display: grid; gap: 8px; }
+.stepno { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: 0.06em; text-transform: uppercase; }
+.lesson-head p { max-width: 70ch; color: var(--ink-2); }
+.two { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.controls { display: grid; gap: 16px; min-width: 0; }
+.stage { display: grid; gap: 14px; min-width: 0; }
 
 .ctl { display: grid; gap: 4px; }
 .ctl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .ctl label { font-size: 14px; font-weight: 500; }
 .ctl output { font-family: var(--font-mono); font-size: 13px; color: var(--ink); white-space: nowrap; }
-.ctl .hint { font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.hint { font-size: 12.5px; color: var(--ink-3); line-height: 1.4; }
 .ctl.off { opacity: 0.45; }
 input[type="range"] { width: 100%; accent-color: var(--accent); margin: 2px 0; }
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
-.seg button { text-align: center; padding: 6px 10px; }
+.seg button, .presets button, .try button { font: inherit; font-size: 13px; padding: 6px 10px; border-radius: 7px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; line-height: 1.25; }
+.presets { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.presets button { text-align: left; padding: 8px 10px; }
+.presets button small { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.seg button[aria-pressed="true"], .presets button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.seg button:hover, .presets button:hover, .try button:hover { border-color: var(--ink-3); }
+button:focus-visible, input:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .check { display: flex; gap: 8px; align-items: center; font-size: 14px; font-weight: 500; }
 .check input { accent-color: var(--accent); width: 16px; height: 16px; }
 
-main { display: grid; gap: 20px; min-width: 0; }
-.readouts { padding: 18px; display: grid; gap: 16px; }
-.status { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.pill { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+.try { display: grid; gap: 8px; padding: 12px 14px; border-radius: 10px; background: var(--bg); }
+.try .row { display: flex; flex-wrap: wrap; gap: 6px; }
+.try button { background: var(--panel); text-align: left; }
+
+/* ---------- lesson 1: balance ---------- */
+.sum { font-size: 15px; color: var(--ink-2); max-width: 70ch; }
+.sum .num { color: var(--ink); }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: minmax(0, 170px) minmax(0, 1fr) 64px; gap: 10px; align-items: center; }
+@media (max-width: 520px) { .bar { grid-template-columns: minmax(0, 1fr) 58px; } .bar .track { grid-column: 1 / -1; grid-row: 2; } }
+.bar .k { font-size: 13.5px; color: var(--ink-2); line-height: 1.3; }
+.bar .track { height: 22px; background: var(--line-2); border-radius: 5px; overflow: hidden; }
+.bar .fill { height: 100%; border-radius: 5px; transition: width 160ms ease; }
+.bar .v { font-family: var(--font-mono); font-size: 14px; text-align: right; }
+.fill.save { background: var(--n4); }
+.fill.fine { background: var(--accent); }
+.verdict { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.verdict p { color: var(--ink-2); font-size: 14px; min-width: 0; flex: 1 1 260px; }
+.pill { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
 .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .pill.good { background: var(--good-bg); color: var(--good); }
 .pill.warn { background: var(--warn-bg); color: var(--warn); }
 .pill.bad { background: var(--bad-bg); color: var(--bad); }
-.status p { color: var(--ink-2); font-size: 14px; min-width: 0; flex: 1 1 260px; }
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border-radius: 8px; overflow: hidden; border: 1px solid var(--line-2); }
-@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.stat { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
-.stat .k { font-size: 12px; color: var(--ink-2); line-height: 1.3; }
-.stat .v { font-family: var(--font-mono); font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.2; }
-.stat .s { font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.formula { font-family: var(--font-mono); font-size: 13px; background: var(--bg); border-radius: 8px; padding: 10px 12px; color: var(--ink); overflow-x: auto; white-space: nowrap; }
 
-.chart-card { padding: 18px; display: grid; gap: 10px; min-width: 0; }
-.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
-.chart-head p { color: var(--ink-2); font-size: 14px; max-width: 62ch; }
-.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
-.legend span { display: inline-flex; align-items: center; gap: 6px; }
-.legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
-.legend i.dash { border-top-style: dashed; }
+/* ---------- charts ---------- */
 .chart { position: relative; width: 100%; }
 .chart svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
 .chart text { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-3); }
@@ -112,199 +123,378 @@ main { display: grid; gap: 20px; min-width: 0; }
 .chart .cross { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 3 3; }
 .chart .now { stroke: var(--ink-2); stroke-width: 1; stroke-dasharray: 2 4; }
 .chart .label { font-family: var(--font-body); font-size: 12px; font-weight: 500; fill: var(--ink); }
+.chart .zone { font-family: var(--font-body); font-size: 13px; font-weight: 600; }
+.chart-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
+.chart-head h3 { color: var(--ink); text-transform: none; letter-spacing: 0; font-size: 16px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
+.legend i.dash { border-top-style: dashed; }
+.legend i.box { height: 10px; border: 0; border-radius: 2px; width: 14px; }
 .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
   padding: 7px 9px; font-size: 12px; line-height: 1.45; box-shadow: 0 4px 14px rgba(0,0,0,0.12); min-width: 150px; z-index: 2; }
-.tip b { font-weight: 600; }
 .tip .row { display: flex; justify-content: space-between; gap: 12px; }
 .tip .row span:last-child { font-family: var(--font-mono); }
 .tip .sw { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-details { font-size: 13px; color: var(--ink-2); }
-summary { cursor: pointer; width: fit-content; }
-.tbl-wrap { overflow-x: auto; margin-top: 8px; }
-table { border-collapse: collapse; font-size: 13px; width: 100%; }
-th, td { text-align: right; padding: 5px 10px; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
-th:first-child, td:first-child { text-align: left; }
-th { font-weight: 600; color: var(--ink-2); }
-td { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+.lookfor { font-size: 14px; color: var(--ink-2); max-width: 70ch; border-left: 3px solid var(--accent); padding-left: 12px; }
+.lookfor b { color: var(--ink); }
 
-.notes { margin-top: 28px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
-@media (max-width: 860px) { .notes { grid-template-columns: minmax(0, 1fr); } }
-.notes .panel { padding: 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-content: start; min-width: 0; }
-.notes li { min-width: 0; }
-.eq { max-width: 100%; }
-.notes ol, .notes ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--ink-2); }
-.notes li { max-width: 65ch; }
-.eq { font-family: var(--font-mono); font-size: 13px; background: var(--bg); border-radius: 6px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; color: var(--ink); }
-.chip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+/* ---------- lesson 3: full model ---------- */
+.console { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .console { grid-template-columns: minmax(0, 1fr); } }
+.console aside { display: grid; gap: 22px; min-width: 0; }
+@media (min-width: 901px) { .console aside { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 6px; } }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 14px; min-width: 0; }
+legend { padding: 0; margin-bottom: 4px; }
+.console main { display: grid; gap: 22px; min-width: 0; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line-2); border-radius: 8px; overflow: hidden; border: 1px solid var(--line-2); }
+@media (max-width: 640px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--panel); padding: 12px 14px; display: grid; gap: 2px; align-content: start; }
+.stat .k { font-size: 12.5px; color: var(--ink-2); line-height: 1.3; }
+.stat .v { font-family: var(--font-mono); font-size: 26px; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stat .s { font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.divider { border-top: 1px solid var(--line-2); }
+
+details { font-size: 13.5px; color: var(--ink-2); }
+summary { cursor: pointer; width: fit-content; font-weight: 500; color: var(--ink); }
+.tbl-wrap { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; font-size: 13.5px; width: 100%; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+th { font-weight: 600; color: var(--ink-2); font-size: 12.5px; white-space: nowrap; }
+td { color: var(--ink-2); }
+td.num, th.num { text-align: right; font-family: var(--font-mono); white-space: nowrap; color: var(--ink); }
+td b { color: var(--ink); }
+.chip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; display: inline-block; }
 .chip.ev { background: var(--good-bg); color: var(--good); }
+.chip.an { background: var(--accent-soft); color: var(--accent); }
 .chip.sc { background: var(--warn-bg); color: var(--warn); }
-.src td { font-family: var(--font-body); white-space: normal; text-align: left; vertical-align: top; color: var(--ink-2); }
-.src td.mono { font-family: var(--font-mono); color: var(--ink); white-space: nowrap; }
-footer { margin-top: 24px; font-size: 13px; color: var(--ink-3); max-width: 80ch; }
+.chip.no { background: var(--bad-bg); color: var(--bad); }
+
+/* ---------- lessons 4–5 and word list ---------- */
+.limits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; margin: 0; padding: 0; list-style: none; }
+@media (max-width: 760px) { .limits { grid-template-columns: minmax(0, 1fr); } }
+.limits li { display: grid; gap: 4px; min-width: 0; }
+.limits li b { font-size: 15px; color: var(--ink); }
+.limits li p { color: var(--ink-2); font-size: 14px; }
+dl.words { display: grid; grid-template-columns: minmax(0, 180px) minmax(0, 1fr); gap: 10px 20px; margin: 0; }
+@media (max-width: 600px) { dl.words { grid-template-columns: minmax(0, 1fr); gap: 2px; } dl.words dd { margin-bottom: 10px; } }
+dl.words dt { font-weight: 600; }
+dl.words dd { margin: 0; color: var(--ink-2); max-width: 68ch; }
+footer { font-size: 13px; color: var(--ink-3); max-width: 80ch; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-</head>
-<body>
+
 <div class="wrap">
   <header>
     <span class="eyebrow">SPAR Fall 2026 · Verification evidence for compute governance · simulation track</span>
     <h1>Hidden Compute Playground</h1>
-    <p class="lede">A developer declares its training compute to a regulator. Hiding part of it saves permit costs; getting caught brings a fine. Move the sliders to see how much compute developers would choose to hide, and how that changes with audit rate, fine size, measurement noise and the number of developers.</p>
-    <span class="notice"><b>Placeholder values.</b> Most defaults are assumptions waiting for coded evidence, so treat outputs as illustrations, not results.</span>
+    <p class="lede">Imagine a rule says AI labs must report how much computing power (“compute”) they use to train their models, and pay for a permit for each unit. A lab could save money by reporting less than it really used. This page walks through, step by step, when a lab would be tempted to do that and what stops it. Each step has sliders, so you can see the idea working.</p>
+    <span class="notice"><b>Mostly guesses.</b> A few numbers come from real studies; most are placeholders. Use this to understand the logic, not to quote results.</span>
+    <nav class="steps" aria-label="Steps">
+      <a href="#trade"><span>1</span>The basic trade</a>
+      <a href="#noise"><span>2</span>Two kinds of check</a>
+      <a href="#model"><span>3</span>The full model</a>
+      <a href="#evidence"><span>4</span>What we know</a>
+      <a href="#limits"><span>5</span>What it leaves out</a>
+      <a href="#words"><span>·</span>Word list</a>
+    </nav>
   </header>
 
-  <div class="console">
-    <aside class="panel" aria-label="Settings">
-      <fieldset>
-        <legend><h3>Instrument</h3></legend>
-        <div class="presets" role="group" aria-label="Instrument presets">
-          <button type="button" id="p-meter" data-preset="meter">Attested metering<small>CI-03 + CI-04</small></button>
-          <button type="button" id="p-sat" data-preset="sat">Satellite imagery<small>CI-05</small></button>
-          <button type="button" id="p-tpv" data-preset="tpv">Third-party verifiers<small>CI-02</small></button>
-          <button type="button" id="p-custom" data-preset="custom">Custom<small>your own values</small></button>
-        </div>
-        <div class="ctl">
-          <span class="ctl-top"><label>How the check works</label></span>
-          <div class="seg" role="group" aria-label="Check type">
-            <button type="button" id="t-measure" data-type="measure">Measures compute</button>
-            <button type="button" id="t-passfail" data-type="passfail">Pass or fail</button>
-          </div>
-          <span class="hint" id="type-hint"></span>
-        </div>
-        <div class="ctl">
-          <span class="ctl-top"><label for="d">Detection when checked</label><output id="d-o" for="d"></output></span>
-          <input type="range" id="d" min="0.05" max="1" step="0.01">
-          <span class="hint">Chance an audit flags a large violation, e.g. attestation not defeated, site not concealed.</span>
-        </div>
-        <div class="ctl" id="sd-ctl">
-          <span class="ctl-top"><label for="sd">Measurement noise</label><output id="sd-o" for="sd"></output></span>
-          <input type="range" id="sd" min="0.005" max="0.15" step="0.005">
-          <span class="hint">Error in a metered reading, as a share of true compute.</span>
-        </div>
-        <div class="ctl" id="f-ctl">
-          <span class="ctl-top"><label for="f">False-alarm setting</label><output id="f-o" for="f"></output></span>
-          <input type="range" id="f" min="0.001" max="0.2" step="0.001">
-          <span class="hint">How often an honest developer gets flagged. A stricter setting catches less shaving but flags more honest developers.</span>
-        </div>
-        <div class="ctl">
-          <span class="ctl-top"><label for="coll">Developers with a colluding verifier</label><output id="coll-o" for="coll"></output></span>
-          <input type="range" id="coll" min="0" max="0.6" step="0.01">
-        </div>
-        <div class="ctl" id="cm-ctl">
-          <span class="ctl-top"><label for="cm">Detection left under collusion</label><output id="cm-o" for="cm"></output></span>
-          <input type="range" id="cm" min="0" max="1" step="0.05">
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend><h3>Policy</h3></legend>
-        <div class="ctl">
-          <span class="ctl-top"><label for="rho">Audit rate</label><output id="rho-o" for="rho"></output></span>
-          <input type="range" id="rho" min="0.02" max="1" step="0.01">
-          <span class="hint">Chance a developer is audited in a year.</span>
-        </div>
-        <div class="ctl">
-          <span class="ctl-top"><label for="a">Fine per unit hidden</label><output id="a-o" for="a"></output></span>
-          <input type="range" id="a" min="10" max="500" step="5">
-          <span class="hint">In model units. A permit costs <span class="num" id="p-inline">10</span> per unit, so 50 means a fine of 5× the permit price on what was hidden.</span>
-        </div>
-        <div class="ctl">
-          <span class="ctl-top"><label for="p">Permit price</label><output id="p-o" for="p"></output></span>
-          <input type="range" id="p" min="2" max="40" step="1">
-        </div>
-        <div class="ctl">
-          <label class="check"><input type="checkbox" id="capon"> Flat cap on any single fine</label>
-          <span class="ctl-top"><label for="cap" class="hint">Cap amount (model units)</label><output id="cap-o" for="cap"></output></span>
-          <input type="range" id="cap" min="10" max="1000" step="10">
-          <span class="hint">Like CA SB 53 ($1m per violation). A cap that scales with turnover, like the EU AI Act's, behaves like no cap here.</span>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend><h3>Industry</h3></legend>
-        <div class="ctl">
-          <span class="ctl-top"><label for="n">Number of developers</label><output id="n-o" for="n"></output></span>
-          <input type="range" id="n" min="1" max="200" step="1">
-          <div class="seg" role="group" aria-label="Quick picks">
-            <button type="button" id="n4" data-n="4">4 frontier labs</button>
-            <button type="button" id="n20" data-n="20">20</button>
-            <button type="button" id="n200" data-n="200">200 small</button>
-          </div>
-          <span class="hint">Total compute stays fixed, so fewer developers means each one is bigger.</span>
-        </div>
-        <div class="ctl">
-          <span class="ctl-top"><label for="mx">Most a developer can hide</label><output id="mx-o" for="mx"></output></span>
-          <input type="range" id="mx" min="0.05" max="1" step="0.05">
-        </div>
-      </fieldset>
-    </aside>
-
-    <main>
-      <section class="panel readouts" aria-live="polite">
-        <div class="status"><span class="pill" id="pill"></span><p id="verdict"></p></div>
-        <div class="stats">
-          <div class="stat"><span class="k">Share of all compute hidden</span><span class="v" id="s-hidden"></span><span class="s" id="s-hidden-sub"></span></div>
-          <div class="stat"><span class="k">Largest developer hides</span><span class="v" id="s-big"></span><span class="s" id="s-big-sub"></span></div>
-          <div class="stat"><span class="k">Audit rate needed to stop large-scale hiding</span><span class="v" id="s-need"></span><span class="s" id="s-need-sub"></span></div>
-          <div class="stat"><span class="k">Audits per year</span><span class="v" id="s-audits"></span><span class="s" id="s-audits-sub"></span></div>
-        </div>
-      </section>
-
-      <section class="panel chart-card">
-        <div class="chart-head">
-          <h2>Hidden compute by audit rate</h2>
-          <div class="legend"><span><i style="border-color: var(--n4)"></i>4 developers</span><span><i style="border-color: var(--n200)" class="dash"></i>200 developers</span></div>
-        </div>
-        <p class="hint" style="color: var(--ink-2); font-size: 14px;">Same total compute, split among few large or many small developers. The dotted line is your audit rate. Without a flat cap the two lines sit on top of each other.</p>
-        <div class="chart" id="c1"></div>
-        <details>
-          <summary>Show the numbers</summary>
-          <div class="tbl-wrap"><table id="t1"></table></div>
-        </details>
-      </section>
-
-      <section class="panel chart-card">
-        <div class="chart-head">
-          <h2>Why developers pick the amount they do</h2>
-          <div class="legend"><span><i style="border-color: var(--accent)"></i>Largest developer</span><span><i style="border-color: var(--accent)" class="dash"></i>Smallest developer</span></div>
-        </div>
-        <p style="color: var(--ink-2); font-size: 14px;">Expected gain per unit of a developer's own compute: permit money saved minus the expected fine. Each developer hides the amount at the top of its curve. With noisy measurement the curve peaks above zero, so small amounts of hiding always pay.</p>
-        <div class="chart" id="c2"></div>
-      </section>
-    </main>
-  </div>
-
-  <section class="notes">
-    <div class="panel">
-      <h2>How the model works</h2>
-      <ol>
-        <li>A developer with true compute <span class="mono">s</span> declares <span class="mono">(1 − Δ)·s</span>. Hiding the share <span class="mono">Δ</span> saves <span class="mono">p·Δ·s</span> in permits.</li>
-        <li>With probability <span class="mono">ρ</span> it is audited. The audit catches it with probability <span class="mono">d(Δ)</span>, and the fine is <span class="mono">a·Δ·s</span>, up to the cap if there is one.</li>
-        <li>A <b>measuring</b> check reads compute with noise <span class="mono">σ</span>. The alarm threshold is set so honest developers are flagged with probability <span class="mono">f</span>, so small under-reports hide inside the noise:
-          <div class="eq">d(Δ) = d · Φ((Δ − k·σ) / σ),   k = Φ⁻¹(1 − f)</div></li>
-        <li>A <b>pass-or-fail</b> check (a hidden site is found or not) has <span class="mono">d(Δ) = d</span> for any hiding at all, so developers hide either nothing or the maximum.</li>
-        <li>Each developer picks the <span class="mono">Δ</span> with the highest expected gain, and picks honesty when it's a tie. Large-scale hiding stops once <span class="mono">ρ·d·a ≥ p</span>.</li>
-        <li>Developer sizes follow a fixed lognormal spread and always add up to the same total compute.</li>
-      </ol>
-      <p style="color: var(--ink-2)">Extends the two-margin model in Christoph, <i>Risk-Weighted Compute Permit Markets under Imperfect Monitoring</i> (SSRN 6361077). The page calculates the same model as the project's Python code, using central values in place of the random draws.</p>
+  <!-- ================= STEP 1 ================= -->
+  <section class="panel lesson" id="trade" aria-labelledby="h-trade">
+    <div class="lesson-head">
+      <span class="stepno">Step 1 of 5</span>
+      <h2 id="h-trade">The basic trade: is cheating worth it?</h2>
+      <p>Picture one lab deciding whether to hide one unit of compute. If it hides it, it saves the permit price: <b>10</b>. But it might get caught. What it expects to pay depends on three things multiplied together: how often it gets checked, how likely a check is to catch it, and how big the fine is.</p>
     </div>
-    <div class="panel">
-      <h2>Where the defaults come from</h2>
-      <div class="tbl-wrap">
-        <table class="src">
-          <tr><th>Preset</th><th>Value</th><th>Basis</th></tr>
-          <tr><td>Attested metering</td><td class="mono">d 0.70</td><td><span class="chip sc">Scenario</span> Attestation keys extracted with a &lt;$1,000 device (CI-03); 198 of 198 seals defeated in lab tests (AN-03).</td></tr>
-          <tr><td></td><td class="mono">σ 3%, f 2%</td><td><span class="chip sc">Scenario</span> Waiting for CI-04 metering rows.</td></tr>
-          <tr><td>Satellite imagery</td><td class="mono">d 0.49</td><td><span class="chip ev">Evidence</span> 98.6% detection of unconcealed sites at 1% false alarms (Clymer 2025, CI-05) × <span class="chip sc">Scenario</span> 0.5 for concealment, which is untested.</td></tr>
-          <tr><td>Third-party verifiers</td><td class="mono">d 0.40</td><td><span class="chip sc">Scenario</span> No detection rate published; EU ETS gives detection risk no value (AN-02).</td></tr>
-          <tr><td></td><td class="mono">collusion 10%</td><td><span class="chip sc">Scenario</span> Verifier is hired by the checked party; four EU ETS accreditations withdrawn (AN-02).</td></tr>
-          <tr><td>Policy</td><td class="mono">p 10, a 50, ρ 0.25</td><td><span class="chip sc">Scenario</span> Defaults from the baseline model.</td></tr>
-        </table>
+    <div class="two">
+      <div class="controls">
+        <div class="ctl">
+          <span class="ctl-top"><label for="l1-rho">How often a lab is checked</label><output id="l1-rho-o" for="l1-rho"></output></span>
+          <input type="range" id="l1-rho" min="0.05" max="1" step="0.01">
+          <span class="hint">The chance a lab gets checked in a given year. 25% means one year in four.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="l1-d">Chance a check catches it</label><output id="l1-d-o" for="l1-d"></output></span>
+          <input type="range" id="l1-d" min="0.01" max="1" step="0.01">
+          <span class="hint">If the lab is checked, how likely the check spots the cheating. This is what our evidence search is about.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="l1-a">Fine, compared with the saving</label><output id="l1-a-o" for="l1-a"></output></span>
+          <input type="range" id="l1-a" min="1" max="20" step="0.5">
+          <span class="hint">5× means a caught lab pays five times what it saved. Our starting value is a guess.</span>
+        </div>
+        <div class="try">
+          <h3>Try this</h3>
+          <div class="row">
+            <button type="button" data-l1="start">Starting values</button>
+            <button type="button" data-l1="yearly">Check every lab every year</button>
+            <button type="button" data-l1="smallfine">Make the fine only 2×</button>
+            <button type="button" data-l1="weak">A weak check (35%)</button>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="bars" aria-live="polite">
+          <div class="bar"><span class="k">What the lab saves by hiding one unit</span><div class="track"><div class="fill save" id="l1-bar-save"></div></div><span class="v" id="l1-save">10.0</span></div>
+          <div class="bar"><span class="k">What it expects to pay in fines</span><div class="track"><div class="fill fine" id="l1-bar-fine"></div></div><span class="v" id="l1-fine"></span></div>
+        </div>
+        <p class="sum" id="l1-sum"></p>
+        <div class="verdict"><span class="pill" id="l1-pill"></span><p id="l1-verdict"></p></div>
+        <div class="chart-head">
+          <h3>How good does a check need to be?</h3>
+          <div class="legend"><span><i class="box" style="background: var(--bad-bg); outline: 1px solid var(--bad)"></i>Cheating pays</span><span><i class="box" style="background: var(--good-bg); outline: 1px solid var(--good)"></i>Cheating doesn’t pay</span></div>
+        </div>
+        <div class="chart" id="l1-chart"></div>
+        <p class="lookfor"><b>What to notice.</b> The line shows the lowest catch rate that stops cheating, for each checking frequency. Checking more often lowers the bar a lot: checking every year instead of one year in four cuts it to a quarter. A bigger fine lowers the whole line. Your dot is your current settings.</p>
       </div>
     </div>
   </section>
 
-  <footer>Built for the SPAR Fall 2026 project <i>Verification Evidence for Compute Governance</i> (simulation track). The values on this page are placeholders, so please don't cite the outputs.</footer>
+  <!-- ================= STEP 2 ================= -->
+  <section class="panel lesson" id="noise" aria-labelledby="h-noise">
+    <div class="lesson-head">
+      <span class="stepno">Step 2 of 5</span>
+      <h2 id="h-noise">Two kinds of check, and why small cheating can slip through</h2>
+      <p>Some checks are <b>pass or fail</b>. A satellite photo either shows a hidden data centre or it doesn’t. If you hide anything at all, you risk being caught, so a lab either hides nothing or as much as it can.</p>
+      <p>Other checks <b>measure</b>. A meter on the chips counts how much compute was used, and the regulator compares that with what the lab reported. But meters are never exactly right. If the regulator raised the alarm at every tiny gap, it would keep accusing honest labs. So it only raises the alarm when the gap is bigger than normal meter error. That leaves room for a lab to under-report a little and stay inside the “normal error” zone.</p>
+    </div>
+    <div class="two">
+      <div class="controls">
+        <div class="ctl">
+          <span class="ctl-top"><label for="l2-sd">How far off the meter can be</label><output id="l2-sd-o" for="l2-sd"></output></span>
+          <input type="range" id="l2-sd" min="0.003" max="0.08" step="0.001">
+          <span class="hint">Typical meter error, as a share of true compute. Our stand-in from nuclear material accounting is about 1%.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="l2-f">How often an honest lab is wrongly flagged</label><output id="l2-f-o" for="l2-f"></output></span>
+          <input type="range" id="l2-f" min="0.001" max="0.2" step="0.001">
+          <span class="hint">The regulator picks this. Fewer false alarms means the alarm line moves further out.</span>
+        </div>
+        <div class="ctl">
+          <span class="ctl-top"><label for="l2-h">How much the lab hides</label><output id="l2-h-o" for="l2-h"></output></span>
+          <input type="range" id="l2-h" min="0" max="0.2" step="0.001">
+        </div>
+        <div class="try">
+          <h3>Try this</h3>
+          <div class="row">
+            <button type="button" data-l2="start">Starting values</button>
+            <button type="button" data-l2="sneaky">Hide just under the line</button>
+            <button type="button" data-l2="bad">A worse meter (5%)</button>
+            <button type="button" data-l2="strict">Allow 10% false alarms</button>
+          </div>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="chart-head">
+          <h3>What the regulator sees: gap between meter and report</h3>
+          <div class="legend"><span><i style="border-color: var(--ink-3)" class="dash"></i>Honest lab</span><span><i style="border-color: var(--n4)"></i>Cheating lab</span><span><i style="border-color: var(--bad)"></i>Alarm line</span></div>
+        </div>
+        <div class="chart" id="l2-chart"></div>
+        <div class="stats" aria-live="polite">
+          <div class="stat"><span class="k">Alarm goes off when the gap is over</span><span class="v" id="l2-line"></span><span class="s" id="l2-line-s"></span></div>
+          <div class="stat"><span class="k">Chance an honest lab is flagged</span><span class="v" id="l2-fa"></span><span class="s">Set by the regulator</span></div>
+          <div class="stat"><span class="k">Chance this cheating lab is flagged</span><span class="v" id="l2-catch"></span><span class="s" id="l2-catch-s"></span></div>
+          <div class="stat"><span class="k">Can hide “for free” up to about</span><span class="v" id="l2-free"></span><span class="s">Flagged less than 1 time in 10</span></div>
+        </div>
+        <p class="lookfor"><b>What to notice.</b> Each hump shows the range of gaps the regulator might see, because the meter wobbles. The shaded part of the orange hump is the chance the cheater crosses the alarm line. Hide a little and the orange hump barely crosses it. That’s why, in the full model, measuring checks leave a small amount of “shaving” that never gets stopped, and its size tracks how far off the meter is.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STEP 3 ================= -->
+  <section class="panel lesson" id="model" aria-labelledby="h-model">
+    <div class="lesson-head">
+      <span class="stepno">Step 3 of 5</span>
+      <h2 id="h-model">The full model: a whole industry of labs</h2>
+      <p>Now put steps 1 and 2 together for many labs of different sizes. Each lab picks how much to hide to get the best deal for itself. Pick a type of check to load its values, then move the sliders. This is the same model as the project’s Python code, using middle values instead of random draws.</p>
+    </div>
+    <div class="console">
+      <aside aria-label="Settings">
+        <fieldset>
+          <legend><h3>Type of check</h3></legend>
+          <div class="presets" role="group" aria-label="Type of check">
+            <button type="button" data-preset="meter">Chip meters<small>CI-03 + CI-04</small></button>
+            <button type="button" data-preset="sat">Satellite photos<small>CI-05</small></button>
+            <button type="button" data-preset="tpv">Paid outside checkers<small>CI-02</small></button>
+            <button type="button" data-preset="custom">Your own<small>custom values</small></button>
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label>How the check works</label></span>
+            <div class="seg" role="group" aria-label="How the check works">
+              <button type="button" data-type="measure">Measures</button>
+              <button type="button" data-type="passfail">Pass or fail</button>
+            </div>
+            <span class="hint" id="type-hint"></span>
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="d">Chance a check catches big cheating</label><output id="d-o" for="d"></output></span>
+            <input type="range" id="d" min="0.05" max="1" step="0.01">
+            <span class="hint" id="d-hint"></span>
+          </div>
+          <div class="ctl" id="sd-ctl">
+            <span class="ctl-top"><label for="sd">How far off the meter can be</label><output id="sd-o" for="sd"></output></span>
+            <input type="range" id="sd" min="0.003" max="0.15" step="0.001">
+          </div>
+          <div class="ctl" id="f-ctl">
+            <span class="ctl-top"><label for="f">Honest labs wrongly flagged</label><output id="f-o" for="f"></output></span>
+            <input type="range" id="f" min="0.001" max="0.2" step="0.001">
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="coll">Labs whose checker goes easy on them</label><output id="coll-o" for="coll"></output></span>
+            <input type="range" id="coll" min="0" max="0.6" step="0.01">
+            <span class="hint">An outside checker is paid by the lab it checks, so some may look the other way.</span>
+          </div>
+          <div class="ctl" id="cm-ctl">
+            <span class="ctl-top"><label for="cm">How much of the catch rate is left then</label><output id="cm-o" for="cm"></output></span>
+            <input type="range" id="cm" min="0" max="1" step="0.05">
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><h3>Rules</h3></legend>
+          <div class="ctl">
+            <span class="ctl-top"><label for="rho">How often a lab is checked</label><output id="rho-o" for="rho"></output></span>
+            <input type="range" id="rho" min="0.02" max="1" step="0.01">
+            <div class="seg" role="group" aria-label="Quick picks for checking">
+              <button type="button" data-rho="0.25">1 year in 4</button>
+              <button type="button" data-rho="1">Every year</button>
+            </div>
+            <span class="hint">Most real checks run yearly or all the time, so try “Every year” too.</span>
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="a">Fine for each unit hidden</label><output id="a-o" for="a"></output></span>
+            <input type="range" id="a" min="10" max="500" step="5">
+            <span class="hint">A permit costs <span class="num" id="p-inline">10</span> per unit, so 50 is a fine of 5× the saving.</span>
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="p">Permit price per unit</label><output id="p-o" for="p"></output></span>
+            <input type="range" id="p" min="2" max="40" step="1">
+          </div>
+          <div class="ctl">
+            <label class="check"><input type="checkbox" id="capon"> Put a fixed limit on any one fine</label>
+            <span class="ctl-top"><label for="cap" class="hint">Limit</label><output id="cap-o" for="cap"></output></span>
+            <input type="range" id="cap" min="10" max="1000" step="10">
+            <span class="hint">Like California’s $1m-per-violation limit. A limit that grows with company size, like the EU’s, acts like no limit here.</span>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend><h3>Labs</h3></legend>
+          <div class="ctl">
+            <span class="ctl-top"><label for="n">Number of labs</label><output id="n-o" for="n"></output></span>
+            <input type="range" id="n" min="1" max="200" step="1">
+            <div class="seg" role="group" aria-label="Quick picks for number of labs">
+              <button type="button" data-n="4">4 big labs</button>
+              <button type="button" data-n="20">20</button>
+              <button type="button" data-n="200">200 small</button>
+            </div>
+            <span class="hint">The total compute stays the same, so fewer labs means each one is bigger.</span>
+          </div>
+          <div class="ctl">
+            <span class="ctl-top"><label for="mx">Most a lab can hide</label><output id="mx-o" for="mx"></output></span>
+            <input type="range" id="mx" min="0.05" max="1" step="0.05">
+          </div>
+        </fieldset>
+      </aside>
+
+      <main>
+        <div class="verdict" aria-live="polite"><span class="pill" id="pill"></span><p id="verdict"></p></div>
+        <div class="stats">
+          <div class="stat"><span class="k">Share of all compute hidden</span><span class="v" id="s-hidden"></span><span class="s" id="s-hidden-sub"></span></div>
+          <div class="stat"><span class="k">Biggest lab hides</span><span class="v" id="s-big"></span><span class="s" id="s-big-sub"></span></div>
+          <div class="stat"><span class="k">Checking needed to stop big cheating</span><span class="v" id="s-need"></span><span class="s" id="s-need-sub"></span></div>
+          <div class="stat"><span class="k">Checks per year</span><span class="v" id="s-audits"></span><span class="s" id="s-audits-sub"></span></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="chart-head">
+          <h3>Hidden compute as checking increases</h3>
+          <div class="legend"><span><i style="border-color: var(--n4)"></i>4 big labs</span><span><i style="border-color: var(--n200)" class="dash"></i>200 small labs</span></div>
+        </div>
+        <div class="chart" id="c1"></div>
+        <p class="lookfor"><b>What to notice.</b> Hiding drops sharply once checking passes the level where cheating stops paying. The dotted line is your current setting. Without a fine limit, the two lines sit on top of each other: size doesn’t matter. Turn the fine limit on and the 4 big labs keep hiding at any level of checking, because the fine is small next to what they save.</p>
+        <details>
+          <summary>Show the numbers</summary>
+          <div class="tbl-wrap"><table id="t1"></table></div>
+        </details>
+
+        <div class="divider"></div>
+        <div class="chart-head">
+          <h3>Why each lab hides the amount it does</h3>
+          <div class="legend"><span><i style="border-color: var(--accent)"></i>Biggest lab</span><span><i style="border-color: var(--accent)" class="dash"></i>Smallest lab</span></div>
+        </div>
+        <div class="chart" id="c2"></div>
+        <p class="lookfor"><b>What to notice.</b> Each curve is a lab’s expected gain (money saved minus expected fine) for each amount it could hide. The lab picks the top of its curve, marked with a dot. For a pass-or-fail check the curve is a straight line, so the best choice is all or nothing. For a measuring check the curve rises a little at first (small hiding inside the meter error is nearly free), then falls once the alarm starts catching it.</p>
+      </main>
+    </div>
+  </section>
+
+  <!-- ================= STEP 4 ================= -->
+  <section class="panel lesson" id="evidence" aria-labelledby="h-ev">
+    <div class="lesson-head">
+      <span class="stepno">Step 4 of 5</span>
+      <h2 id="h-ev">What we actually know about catch rates</h2>
+      <p>Step 1 showed that everything hinges on the chance a check catches cheating. Here is what the project has found so far, as of 18 October 2026. The labels say how much to trust each number.</p>
+      <p class="hint" style="font-size: 13px;"><span class="chip ev">Measured</span> a real test of this kind of check · <span class="chip an">Stand-in</span> a number from a similar setting (taxes, nuclear) · <span class="chip sc">Guess</span> a placeholder · <span class="chip no">Nothing yet</span> no number found</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Type of check</th><th>What we have</th><th>The number</th><th>How much to trust it</th><th>Used on this page</th></tr>
+        <tr><td><b>Satellite photos</b> (CI-05)</td><td><span class="chip ev">Measured</span> A computer model spotted data centres in satellite photos (Clymer 2025, about 230 images).</td><td class="num">98.6%</td><td>Good, but only for sites nobody tried to hide. <span class="chip no">Nothing yet</span> for hidden sites.</td><td class="num">49%</td></tr>
+        <tr><td></td><td><span class="chip sc">Guess</span> Hiding a site halves the catch rate.</td><td class="num">× 0.5</td><td>Pure guess. Covering cooling towers or building small (under about 10 MW) may beat it.</td><td></td></tr>
+        <tr><td><b>GPU monitoring</b> (CI-04)</td><td><span class="chip ev">Measured</span> Watching GPU readings to spot training runs (Rahman &amp; Tajdari 2026, 1,404 runs).</td><td class="num">98%<br>43–87%</td><td>Lab test on small setups. The second number is when the cheater knows how the detector works, which is the realistic case.</td><td></td></tr>
+        <tr><td></td><td><span class="chip ev">Measured</span> Watching power use (Gargiulo, from the project’s coding sheet).</td><td class="num">48–88%</td><td>Lab test, disguised small runs. Not yet checked by us.</td><td></td></tr>
+        <tr><td><b>Chip checks</b> (CI-03)</td><td><span class="chip no">Nothing yet</span> Only evidence they can be broken: secret chip keys stolen with under $1,000 of kit; every seal broken in one lab test.</td><td class="num">—</td><td>The page’s 70% for chip meters is a guess for “the chip check isn’t broken”.</td><td class="num">70%</td></tr>
+        <tr><td><b>Meter error</b> (CI-04)</td><td><span class="chip an">Stand-in</span> How precisely plutonium is measured in nuclear accounting.</td><td class="num">0.3–2.8%</td><td>Medium. Counting compute isn’t like weighing material; the real error is about what counts as compute.</td><td class="num">1%</td></tr>
+        <tr><td><b>False alarms</b> (CI-04)</td><td><span class="chip an">Stand-in</span> Nuclear accounting (about 1%); <span class="chip ev">Measured</span> GPU monitoring lab test (3%).</td><td class="num">1–3%</td><td>Medium.</td><td class="num">1%</td></tr>
+        <tr><td><b>Paid outside checkers</b> (CI-02)</td><td><span class="chip an">Stand-in</span> A thorough tax audit finds about a third of hidden income (IRS).</td><td class="num">≈ 33%</td><td>Good data, different setting. Tax inspectors aren’t paid by the person they check.</td><td class="num">35%</td></tr>
+        <tr><td></td><td><span class="chip an">Stand-in</span> Auditors paid by a company found only about 1 in 10 of frauds that came to light (Dyck, Morse &amp; Zingales).</td><td class="num">≈ 10%</td><td>Not a catch rate per check. Suggests checkers paid by the company catch little.</td><td></td></tr>
+        <tr><td></td><td><span class="chip sc">Guess</span> 10% of checkers go easy; they keep a quarter of their catch rate.</td><td class="num">10%, × 0.25</td><td>Pure guess.</td><td></td></tr>
+      </table>
+    </div>
+    <p class="lookfor"><b>The upshot.</b> Most checks run yearly or all the time, so (with a fine of 5× the saving) the bar is about <b>20%</b>, not 80%. So the useful question for each check is: <b>what is the cheapest way to beat it, and does it still catch cheaters at least 20% of the time against that?</b> Go back to step 1 and press “Check every lab every year” to see the bar drop.</p>
+  </section>
+
+  <!-- ================= STEP 5 ================= -->
+  <section class="panel lesson" id="limits" aria-labelledby="h-lim">
+    <div class="lesson-head">
+      <span class="stepno">Step 5 of 5</span>
+      <h2 id="h-lim">What this model leaves out</h2>
+      <p>The model is a useful way to think, but it simplifies a lot. Keep these in mind before drawing conclusions.</p>
+    </div>
+    <ul class="limits">
+      <li><b>The fine is a guess.</b><p>Everything in step 1 depends on how big the fine is compared with what a lab gains. Under real US laws there’s no permit to save on, and labs also face costs beyond fines (reputation, legal trouble). We don’t know the real ratio yet.</p></li>
+      <li><b>Being caught doesn’t always mean being punished.</b><p>The model assumes every caught lab pays. In practice there are appeals and arguments. Iran being caught by nuclear inspectors led to reports, not fines.</p></li>
+      <li><b>Cheaters pick the easiest way out.</b><p>Lab tests report an average over the tricks they tried. A real cheater uses whatever works best, so the number that matters is the worst case. For GPU monitoring that’s about 43%, not 98%.</p></li>
+      <li><b>Checks don’t simply add up.</b><p>A cheater looks for one path past all the checks, for example small hidden sites plus broken chip checks. Chip meters rely on chip checks, so if one fails, both do.</p></li>
+      <li><b>A photo flag is only the start.</b><p>After a satellite flags a site, someone must inspect it and be let in. With 1% false alarms across thousands of factories, that’s hundreds of visits. Inspection capacity, not the 98.6%, sets the real catch rate.</p></li>
+      <li><b>Between countries, fines aren’t the point.</b><p>For satellites, or chip checks on another country, the cheater wants to get ahead, not save money, and the punishment isn’t a fine. The real question is whether cheating is caught <i>before the training run is finished</i>.</p></li>
+      <li><b>Small under-reporting isn’t the safety risk.</b><p>The “shaving” in step 2 matters for permit money. For safety, the question is whether a whole dangerous training run can be hidden.</p></li>
+      <li><b>Big runs are hard to hide in small sites.</b><p>Satellites mostly miss sites under about 10 MW (around 7,000–10,000 GPUs). A frontier run needs around 100,000 GPUs, so it would need 10 or more hidden sites working together.</p></li>
+    </ul>
+  </section>
+
+  <!-- ================= WORD LIST ================= -->
+  <section class="panel lesson" id="words" aria-labelledby="h-words">
+    <div class="lesson-head">
+      <h2 id="h-words">Word list</h2>
+    </div>
+    <dl class="words">
+      <dt>Compute</dt><dd>The computing power used to train an AI model, roughly how many calculations its chips did. Bigger training runs use more.</dd>
+      <dt>Permit</dt><dd>In this model, labs pay for each unit of compute they use. Under-reporting saves that payment. (This idea comes from Joel Christoph’s paper on compute permit markets.)</dd>
+      <dt>Check</dt><dd>Any way a regulator tests a lab’s report: an outside checker, a chip meter, a satellite photo. Also called an audit or an inspection.</dd>
+      <dt>Catch rate</dt><dd>If a lab is checked, the chance the check spots cheating.</dd>
+      <dt>Pass-or-fail check</dt><dd>A check that either finds the cheating or doesn’t, like a satellite spotting a hidden site.</dd>
+      <dt>Measuring check</dt><dd>A check that reads a number, like a meter counting compute, and compares it with what the lab reported.</dd>
+      <dt>Meter error</dt><dd>How far a meter’s reading can be from the truth, by accident.</dd>
+      <dt>False alarm</dt><dd>When an honest lab gets flagged. The regulator sets how often it’s willing to let this happen.</dd>
+      <dt>Shaving</dt><dd>Under-reporting by a small amount that stays inside normal meter error, so it’s rarely caught.</dd>
+      <dt>Going easy (collusion)</dt><dd>When a checker paid by the lab looks the other way.</dd>
+      <dt>Fine limit</dt><dd>A fixed maximum on any one fine. California’s is $1m per violation; New York’s is $1m, then $3m.</dd>
+      <dt>Stand-in</dt><dd>A number taken from a similar setting (tax audits, nuclear inspections) because nobody has measured the AI version yet.</dd>
+    </dl>
+  </section>
+
+  <footer>Built for the SPAR Fall 2026 project <i>Verification Evidence for Compute Governance</i> (simulation track). Based on Christoph, <i>Risk-Weighted Compute Permit Markets under Imperfect Monitoring</i> (SSRN 6361077). Values updated 18 October 2026 from the project’s second run. Most values are placeholders, so please don’t cite the outputs.</footer>
 </div>
 
 <script>
@@ -328,93 +518,12 @@ footer { margin-top: 24px; font-size: 13px; color: var(--ink-3); max-width: 80ch
     const q = p - 0.5, r = q * q;
     return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
   }
-
-  const TOTAL = 200, SIZE_SD = 0.6, G = 401;
-  function sizes(n) {
-    const w = Array.from({ length: n }, (_, i) => Math.exp(SIZE_SD * invPhi((i + 0.5) / n)));
-    const sum = w.reduce((x, y) => x + y, 0);
-    return w.map(v => v / sum * TOTAL).sort((x, y) => y - x); // largest first
-  }
-  function grid(mx) { return Array.from({ length: G }, (_, i) => mx * i / (G - 1)); }
-  function shape(S, g) { // detection per unit of d
-    if (S.type === "passfail") return g.map(x => (x > 0 ? 1 : 0));
-    const k = invPhi(1 - S.f);
-    return g.map(x => Phi((x - k * S.sd) / S.sd));
-  }
-  // best share hidden for a developer of size s with detection dEff
-  function best(s, dEff, rho, S, g, sh) {
-    const cap = S.capon ? S.cap : Infinity;
-    let bestI = 0, bestV = 0;
-    for (let i = 1; i < g.length; i++) {
-      const v = S.p * g[i] * s - rho * dEff * sh[i] * Math.min(S.a * g[i] * s, cap);
-      if (v > bestV + 1e-9) { bestV = v; bestI = i; }
-    }
-    return bestI;
-  }
-  function industry(n, rho, S, g, sh) {
-    const sz = sizes(n);
-    let hidden = 0, caught = 0;
-    const per = sz.map(s => {
-      const iN = best(s, S.d, rho, S, g, sh);
-      const iC = S.coll > 0 ? best(s, S.d * S.cm, rho, S, g, sh) : iN;
-      const h = (1 - S.coll) * g[iN] + S.coll * g[iC];
-      hidden += s * h;
-      caught += s * rho * ((1 - S.coll) * g[iN] * S.d * sh[iN] + S.coll * g[iC] * S.d * S.cm * sh[iC]);
-      return { s, delta: g[iN] };
-    });
-    return { hidden: hidden / TOTAL, caught: caught / TOTAL, per };
-  }
-
-  // ---------- state ----------
-  const PRESETS = {
-    meter: { type: "measure", d: 0.70, sd: 0.03, f: 0.02, coll: 0, cm: 0.25, mx: 0.40 },
-    sat:   { type: "passfail", d: 0.49, sd: 0.03, f: 0.01, coll: 0, cm: 0.25, mx: 0.40 },
-    tpv:   { type: "passfail", d: 0.40, sd: 0.03, f: 0.02, coll: 0.10, cm: 0.25, mx: 1.00 },
-  };
-  const S = { preset: "meter", ...PRESETS.meter, rho: 0.25, a: 50, p: 10, capon: false, cap: 100, n: 4 };
   const $ = id => document.getElementById(id);
-  const pct = (x, dp = 1) => (x * 100).toFixed(x * 100 < 10 && dp ? dp : 0) + "%";
   const pct1 = x => (x * 100).toFixed(1) + "%";
+  const pct0 = x => Math.round(x * 100) + "%";
+  const pctAuto = x => (x * 100 < 10 ? (x * 100).toFixed(1) : Math.round(x * 100)) + "%";
 
-  const sliders = {
-    d: v => v.toFixed(2), sd: v => pct1(v), f: v => pct1(v), coll: v => pct(v, 0), cm: v => pct(v, 0),
-    rho: v => v.toFixed(2), a: v => v.toFixed(0), p: v => v.toFixed(0), cap: v => v.toFixed(0), n: v => v.toFixed(0), mx: v => pct(v, 0)
-  };
-  function syncInputs() {
-    for (const k of Object.keys(sliders)) { $(k).value = S[k]; $(k + "-o").textContent = sliders[k](S[k]); }
-    $("capon").checked = S.capon;
-    $("p-inline").textContent = S.p;
-    document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.preset === S.preset)));
-    document.querySelectorAll("[data-type]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.type === S.type)));
-    document.querySelectorAll("[data-n]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.n === S.n)));
-    const pf = S.type === "passfail";
-    $("sd-ctl").classList.toggle("off", pf); $("f-ctl").classList.toggle("off", pf);
-    $("sd").disabled = pf; $("f").disabled = pf;
-    $("cap").disabled = !S.capon;
-    $("cm-ctl").classList.toggle("off", S.coll === 0);
-    $("type-hint").textContent = pf
-      ? "Finds the violation or not, e.g. a hidden site. Noise settings don't apply."
-      : "Reads the quantity with some error, so small under-reports can hide in the noise.";
-  }
-  for (const k of Object.keys(sliders)) {
-    $(k).addEventListener("input", e => {
-      S[k] = +e.target.value;
-      if (!["rho", "a", "p", "cap", "n", "mx"].includes(k)) S.preset = "custom";
-      if (k === "mx" && S.preset !== "custom") S.preset = "custom";
-      schedule();
-    });
-  }
-  $("capon").addEventListener("change", e => { S.capon = e.target.checked; schedule(); });
-  document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
-    S.preset = b.dataset.preset; if (PRESETS[S.preset]) Object.assign(S, PRESETS[S.preset]); schedule();
-  }));
-  document.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { S.type = b.dataset.type; S.preset = "custom"; schedule(); }));
-  document.querySelectorAll("[data-n]").forEach(b => b.addEventListener("click", () => { S.n = +b.dataset.n; schedule(); }));
-
-  let queued = false;
-  function schedule() { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; render(); }); } }
-
-  // ---------- charts ----------
+  // ---------- svg helpers ----------
   const NS = "http://www.w3.org/2000/svg";
   function el(name, attrs, parent) { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
   function niceTicks(lo, hi) {
@@ -425,23 +534,30 @@ footer { margin-top: 24px; font-size: 13px; color: var(--ink-3); max-width: 80ch
     const t = []; for (let v = a; v <= b + step / 2; v += step) t.push(+v.toFixed(10));
     return { lo: a, hi: b, ticks: t, step };
   }
-  function niceMax(v) { if (v <= 0) return 0.05; const steps = [0.02, 0.05, 0.1, 0.2, 0.25, 0.4, 0.5, 0.6, 0.8, 1, 2, 5, 10, 20, 50, 100]; for (const s of steps) if (v <= s) return s; return Math.ceil(v); }
-
-  function lineChart(host, cfg) {
+  function frame(host, W, H, m, cfg) {
     host.innerHTML = "";
-    const W = 640, H = 290, m = { l: 52, r: 18, t: 14, b: 44 };
     const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": cfg.aria }, host);
     const [x0, x1] = cfg.x, [y0, y1] = cfg.y;
     const X = v => m.l + (v - x0) / (x1 - x0) * (W - m.l - m.r);
     const Y = v => H - m.b - (v - y0) / (y1 - y0) * (H - m.t - m.b);
-    cfg.yTicks.forEach(t => {
+    (cfg.yTicks || []).forEach(t => {
       el("line", { x1: m.l, x2: W - m.r, y1: Y(t), y2: Y(t), class: Math.abs(t) < 1e-12 ? "zero" : "grid" }, svg);
       el("text", { x: m.l - 8, y: Y(t) + 4, "text-anchor": "end" }, svg).textContent = cfg.yFmt(t);
     });
-    cfg.xTicks.forEach(t => { el("text", { x: X(t), y: H - m.b + 18, "text-anchor": "middle" }, svg).textContent = cfg.xFmt(t); });
+    (cfg.xTicks || []).forEach(t => { el("text", { x: X(t), y: H - m.b + 18, "text-anchor": "middle" }, svg).textContent = cfg.xFmt(t); });
     el("text", { x: (m.l + W - m.r) / 2, y: H - 6, "text-anchor": "middle", class: "axis-title" }, svg).textContent = cfg.xTitle;
-    const yt = el("text", { x: 14, y: (m.t + H - m.b) / 2, "text-anchor": "middle", class: "axis-title", transform: `rotate(-90 14 ${(m.t + H - m.b) / 2})` }, svg);
-    yt.textContent = cfg.yTitle;
+    if (cfg.yTitle) {
+      const yc = (m.t + H - m.b) / 2;
+      el("text", { x: 14, y: yc, "text-anchor": "middle", class: "axis-title", transform: `rotate(-90 14 ${yc})` }, svg).textContent = cfg.yTitle;
+    }
+    return { svg, X, Y };
+  }
+
+  // Line chart with hover, used in step 3
+  function lineChart(host, cfg) {
+    const W = 640, H = 290, m = { l: 52, r: 18, t: 14, b: 44 };
+    const { svg, X, Y } = frame(host, W, H, m, cfg);
+    const [x0, x1] = cfg.x, [y0, y1] = cfg.y;
     if (cfg.now != null) el("line", { x1: X(cfg.now), x2: X(cfg.now), y1: m.t, y2: H - m.b, class: "now" }, svg);
     cfg.series.forEach(s => {
       const d = s.pts.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(Math.max(y0, Math.min(y1, p[1]))).toFixed(1)}`).join("");
@@ -449,9 +565,8 @@ footer { margin-top: 24px; font-size: 13px; color: var(--ink-3); max-width: 80ch
     });
     (cfg.markers || []).forEach(mk => {
       el("circle", { cx: X(mk.x), cy: Y(mk.y), r: 5, fill: mk.color, stroke: "var(--panel)", "stroke-width": 2 }, svg);
-      if (mk.label) el("text", { x: Math.min(X(mk.x) + 8, W - m.r - 4), y: Y(mk.y) - 9, class: "label", "text-anchor": X(mk.x) > W - 140 ? "end" : "start" }, svg).textContent = mk.label;
+      if (mk.label) el("text", { x: Math.min(X(mk.x) + 8, W - m.r - 4), y: Y(mk.y) - 9, class: "label", "text-anchor": X(mk.x) > W - 160 ? "end" : "start" }, svg).textContent = mk.label;
     });
-    // hover
     const cross = el("line", { y1: m.t, y2: H - m.b, class: "cross", visibility: "hidden" }, svg);
     const dots = cfg.series.map(s => el("circle", { r: 4, fill: s.color, stroke: "var(--panel)", "stroke-width": 2, visibility: "hidden" }, svg));
     const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, fill: "transparent" }, svg);
@@ -475,78 +590,294 @@ footer { margin-top: 24px; font-size: 13px; color: var(--ink-3); max-width: 80ch
     hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move); hit.addEventListener("pointerleave", leave);
   }
 
-  // ---------- render ----------
+  // ======================================================
+  // STEP 1: the basic trade
+  // ======================================================
+  const P1 = 10;
+  const L1START = { rho: 0.25, d: 0.70, a: 5 };
+  const L1 = { ...L1START };
+  const L1TRY = { start: L1START, yearly: { rho: 1 }, smallfine: { a: 2 }, weak: { d: 0.35 } };
+  ["rho", "d", "a"].forEach(k => $("l1-" + k).addEventListener("input", e => { L1[k] = +e.target.value; renderL1(); }));
+  document.querySelectorAll("[data-l1]").forEach(b => b.addEventListener("click", () => { Object.assign(L1, L1TRY[b.dataset.l1]); renderL1(); }));
+
+  function renderL1() {
+    $("l1-rho").value = L1.rho; $("l1-d").value = L1.d; $("l1-a").value = L1.a;
+    $("l1-rho-o").textContent = pct0(L1.rho) + " of years";
+    $("l1-d-o").textContent = pct0(L1.d);
+    $("l1-a-o").textContent = (+L1.a).toFixed(L1.a % 1 ? 1 : 0) + "× the saving";
+    const fineAmt = P1 * L1.a;                // fine per unit if caught
+    const exp = L1.rho * L1.d * fineAmt;      // expected fine per unit hidden
+    const need = 1 / (L1.rho * L1.a);         // catch rate needed
+    const scale = Math.max(P1, exp) * 1.05;
+    $("l1-bar-save").style.width = (P1 / scale * 100) + "%";
+    $("l1-bar-fine").style.width = (exp / scale * 100) + "%";
+    $("l1-fine").textContent = exp.toFixed(1);
+    $("l1-sum").innerHTML = `Expected fine = checked <span class="num">${pct0(L1.rho)}</span> of the time × caught <span class="num">${pct0(L1.d)}</span> of those times × fine of <span class="num">${fineAmt.toFixed(0)}</span> = <span class="num">${exp.toFixed(1)}</span>. Compare that with the <span class="num">10</span> it saves.`;
+    const pill = $("l1-pill"), v = $("l1-verdict");
+    if (Math.abs(exp - P1) < 0.05) { pill.className = "pill warn"; pill.textContent = "Break-even"; v.textContent = "The expected fine about equals the saving, so cheating is a toss-up."; }
+    else if (exp < P1) {
+      pill.className = "pill bad"; pill.textContent = "Cheating pays";
+      v.textContent = need > 1
+        ? `Even a perfect check wouldn’t be enough here. Check more often or raise the fine.`
+        : `A check would need to catch cheating at least ${pct0(need)} of the time to stop it at this checking rate and fine.`;
+    } else {
+      pill.className = "pill good"; pill.textContent = "Cheating doesn’t pay";
+      v.textContent = `The expected fine is bigger than the saving. Anything above a ${pct0(Math.min(need, 1))} catch rate would do.`;
+    }
+    drawL1();
+  }
+
+  function drawL1() {
+    const W = 640, H = 270, m = { l: 52, r: 18, t: 14, b: 44 };
+    const cfg = {
+      aria: "Chart of the lowest catch rate that stops cheating, for each checking frequency",
+      x: [0, 1], y: [0, 1], xTicks: [0, 0.25, 0.5, 0.75, 1], yTicks: [0, 0.25, 0.5, 0.75, 1],
+      xFmt: t => pct0(t), yFmt: t => pct0(t),
+      xTitle: "How often a lab is checked (share of years)", yTitle: "Catch rate needed",
+    };
+    const { svg, X, Y } = frame($("l1-chart"), W, H, m, cfg);
+    const xs = Array.from({ length: 200 }, (_, i) => 0.005 + i * (0.995 / 199));
+    const curve = xs.map(x => [x, Math.min(1, 1 / (x * L1.a))]);
+    // zones
+    const top = `M${X(0)},${Y(1)} ` + curve.map(p => `L${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ") + ` L${X(1)},${Y(1)} Z`;
+    const bot = `M${X(0)},${Y(0)} L${X(0)},${Y(1)} ` + curve.map(p => `L${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ") + ` L${X(1)},${Y(0)} Z`;
+    el("path", { d: bot, fill: "var(--bad-bg)" }, svg);
+    el("path", { d: top, fill: "var(--good-bg)" }, svg);
+    el("path", { d: curve.map((p, i) => `${i ? "L" : "M"}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(""), fill: "none", stroke: "var(--ink)", "stroke-width": 2 }, svg);
+    // zone labels
+    el("text", { x: X(0.97), y: Y(0.08), "text-anchor": "end", class: "zone", fill: "var(--bad)" }, svg).textContent = "Cheating pays";
+    const gx = 0.97, gy = Math.min(0.95, Math.max(1 / (gx * L1.a) + 0.1, 0.5));
+    if (1 / (gx * L1.a) < 0.85) el("text", { x: X(gx), y: Y(gy), "text-anchor": "end", class: "zone", fill: "var(--good)" }, svg).textContent = "Cheating doesn’t pay";
+    // reference points at 25% and 100%
+    [0.25, 1].forEach(rx => {
+      const ry = Math.min(1, 1 / (rx * L1.a));
+      el("circle", { cx: X(rx), cy: Y(ry), r: 3.5, fill: "var(--ink)" }, svg);
+      el("text", { x: X(rx) + (rx === 1 ? -6 : 6), y: Y(ry) - 8, "text-anchor": rx === 1 ? "end" : "start", class: "label" }, svg).textContent = `${pct0(ry)} needed`;
+    });
+    // current setting
+    el("circle", { cx: X(L1.rho), cy: Y(L1.d), r: 7, fill: "var(--n4)", stroke: "var(--panel)", "stroke-width": 2 }, svg);
+    const lx = X(L1.rho), right = lx < W - 150;
+    el("text", { x: lx + (right ? 11 : -11), y: Y(L1.d) + 18, "text-anchor": right ? "start" : "end", class: "label" }, svg).textContent = "Your settings";
+  }
+
+  // ======================================================
+  // STEP 2: measuring checks and the alarm line
+  // ======================================================
+  const L2START = { sd: 0.01, f: 0.01, h: 0.02 };
+  const L2 = { ...L2START };
+  ["sd", "f", "h"].forEach(k => $("l2-" + k).addEventListener("input", e => { L2[k] = +e.target.value; renderL2(); }));
+  document.querySelectorAll("[data-l2]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.l2;
+    if (k === "start") Object.assign(L2, L2START);
+    if (k === "bad") L2.sd = 0.05;
+    if (k === "strict") L2.f = 0.10;
+    if (k === "sneaky") { const kk = invPhi(1 - L2.f); L2.h = Math.max(0, +(kk * L2.sd - 1.28 * L2.sd).toFixed(3)); }
+    renderL2();
+  }));
+
+  function renderL2() {
+    $("l2-sd").value = L2.sd; $("l2-f").value = L2.f; $("l2-h").value = L2.h;
+    $("l2-sd-o").textContent = pct1(L2.sd);
+    $("l2-f-o").textContent = pct1(L2.f);
+    $("l2-h-o").textContent = pct1(L2.h);
+    const k = invPhi(1 - L2.f), line = k * L2.sd;
+    const catchP = Phi((L2.h - line) / L2.sd);
+    const free = Math.max(0, line - 1.2816 * L2.sd); // flagged 10% of the time
+    $("l2-line").textContent = pct1(line);
+    $("l2-line-s").textContent = `= ${k.toFixed(2)} × the meter error`;
+    $("l2-fa").textContent = pct1(L2.f);
+    $("l2-catch").textContent = L2.h === 0 ? pct1(L2.f) : pctAuto(catchP);
+    $("l2-catch-s").textContent = L2.h === 0 ? "Not cheating, so same as honest" : `Hiding ${pct1(L2.h)} of its compute`;
+    $("l2-free").textContent = pct1(free);
+    drawL2(line, catchP);
+  }
+
+  function drawL2(line) {
+    const W = 640, H = 260, m = { l: 18, r: 18, t: 24, b: 44 };
+    const lo = -4 * L2.sd, hi = Math.max(L2.h + 4 * L2.sd, line + 2.5 * L2.sd);
+    const t = niceTicks(lo, hi);
+    const pdf = (x, mu) => Math.exp(-0.5 * ((x - mu) / L2.sd) ** 2);
+    const cfg = {
+      aria: "Two bell curves showing the gap the regulator sees for an honest lab and a cheating lab, with the alarm line",
+      x: [lo, hi], y: [0, 1.12], xTicks: t.ticks.filter(v => v >= lo - 1e-9 && v <= hi + 1e-9), xFmt: v => pctAuto(v).replace("-0.0%", "0%"),
+      xTitle: "Gap between meter reading and what the lab reported (share of its compute)",
+    };
+    const { svg, X, Y } = frame($("l2-chart"), W, H, m, cfg);
+    el("line", { x1: m.l, x2: W - m.r, y1: Y(0), y2: Y(0), class: "zero" }, svg);
+    const N = 240, xs = Array.from({ length: N }, (_, i) => lo + i * (hi - lo) / (N - 1));
+    const path = mu => xs.map((x, i) => `${i ? "L" : "M"}${X(x).toFixed(1)},${Y(pdf(x, mu)).toFixed(1)}`).join("");
+    // shaded catch area under the cheater's curve, right of the line
+    const xsR = xs.filter(x => x >= line);
+    if (xsR.length) {
+      const d = `M${X(line).toFixed(1)},${Y(0)} L${X(line).toFixed(1)},${Y(pdf(line, L2.h)).toFixed(1)} ` + xsR.map(x => `L${X(x).toFixed(1)},${Y(pdf(x, L2.h)).toFixed(1)}`).join(" ") + ` L${X(xsR[xsR.length - 1]).toFixed(1)},${Y(0)} Z`;
+      el("path", { d, fill: "var(--n4)", "fill-opacity": 0.22 }, svg);
+    }
+    el("path", { d: path(0), fill: "none", stroke: "var(--ink-3)", "stroke-width": 2, "stroke-dasharray": "6 4" }, svg);
+    el("path", { d: path(L2.h), fill: "none", stroke: "var(--n4)", "stroke-width": 2.5 }, svg);
+    // alarm line
+    el("line", { x1: X(line), x2: X(line), y1: 20, y2: Y(0), stroke: "var(--bad)", "stroke-width": 2 }, svg);
+    el("text", { x: X(line), y: 14, "text-anchor": "middle", class: "label", fill: "var(--bad)" }, svg).textContent = "Alarm line";
+    // labels at peaks
+    el("text", { x: X(0), y: Y(1) - 8, "text-anchor": "middle", class: "label" }, svg).textContent = "Honest";
+    if (Math.abs(X(L2.h) - X(0)) > 60) el("text", { x: X(L2.h), y: Y(1) - 8, "text-anchor": "middle", class: "label", fill: "var(--n4)" }, svg).textContent = "Cheating";
+  }
+
+  // ======================================================
+  // STEP 3: the full model (same as spar_sim/model.py, central values)
+  // ======================================================
+  const TOTAL = 200, SIZE_SD = 0.6, G = 401;
+  function sizes(n) {
+    const w = Array.from({ length: n }, (_, i) => Math.exp(SIZE_SD * invPhi((i + 0.5) / n)));
+    const sum = w.reduce((x, y) => x + y, 0);
+    return w.map(v => v / sum * TOTAL).sort((x, y) => y - x);
+  }
+  function grid(mx) { return Array.from({ length: G }, (_, i) => mx * i / (G - 1)); }
+  function shape(S, g) {
+    if (S.type === "passfail") return g.map(x => (x > 0 ? 1 : 0));
+    const k = invPhi(1 - S.f);
+    return g.map(x => Phi((x - k * S.sd) / S.sd));
+  }
+  function best(s, dEff, rho, S, g, sh) {
+    const cap = S.capon ? S.cap : Infinity;
+    let bestI = 0, bestV = 0;
+    for (let i = 1; i < g.length; i++) {
+      const v = S.p * g[i] * s - rho * dEff * sh[i] * Math.min(S.a * g[i] * s, cap);
+      if (v > bestV + 1e-9) { bestV = v; bestI = i; }
+    }
+    return bestI;
+  }
+  function industry(n, rho, S, g, sh) {
+    const sz = sizes(n);
+    let hidden = 0, caught = 0;
+    const per = sz.map(s => {
+      const iN = best(s, S.d, rho, S, g, sh);
+      const iC = S.coll > 0 ? best(s, S.d * S.cm, rho, S, g, sh) : iN;
+      hidden += s * ((1 - S.coll) * g[iN] + S.coll * g[iC]);
+      caught += s * rho * ((1 - S.coll) * g[iN] * S.d * sh[iN] + S.coll * g[iC] * S.d * S.cm * sh[iC]);
+      return { s, delta: g[iN] };
+    });
+    return { hidden: hidden / TOTAL, caught: caught / TOTAL, per };
+  }
+
+  // Middle values from data/placeholder_ranges.csv (second run, 18 Oct 2026)
+  const PRESETS = {
+    meter: { type: "measure", d: 0.70, sd: 0.01, f: 0.01, coll: 0, cm: 0.25, mx: 0.40 },
+    sat:   { type: "passfail", d: 0.49, sd: 0.01, f: 0.01, coll: 0, cm: 0.25, mx: 0.40 },
+    tpv:   { type: "passfail", d: 0.35, sd: 0.01, f: 0.01, coll: 0.10, cm: 0.25, mx: 1.00 },
+  };
+  const D_HINT = {
+    meter: "70% is a guess for “the chip check isn’t broken”. No one has measured it.",
+    sat: "98.6% for unhidden sites (measured) × 0.5 for hiding (a guess) = 49%.",
+    tpv: "35% from tax audits, a stand-in. Not measured for AI checkers.",
+    custom: "Your own value.",
+  };
+  const S = { preset: "meter", ...PRESETS.meter, rho: 0.25, a: 50, p: 10, capon: false, cap: 100, n: 4 };
+  const sliders = {
+    d: v => pct0(v), sd: v => pct1(v), f: v => pct1(v), coll: v => pct0(v), cm: v => pct0(v),
+    rho: v => pct0(v) + " of years", a: v => v.toFixed(0), p: v => v.toFixed(0), cap: v => v.toFixed(0), n: v => v.toFixed(0), mx: v => pct0(v)
+  };
+  function syncInputs() {
+    for (const k of Object.keys(sliders)) { $(k).value = S[k]; $(k + "-o").textContent = sliders[k](S[k]); }
+    $("capon").checked = S.capon;
+    $("p-inline").textContent = S.p;
+    document.querySelectorAll("[data-preset]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.preset === S.preset)));
+    document.querySelectorAll("[data-type]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.type === S.type)));
+    document.querySelectorAll("[data-n]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.n === S.n)));
+    document.querySelectorAll("[data-rho]").forEach(b => b.setAttribute("aria-pressed", String(Math.abs(+b.dataset.rho - S.rho) < 1e-9)));
+    const pf = S.type === "passfail";
+    $("sd-ctl").classList.toggle("off", pf); $("f-ctl").classList.toggle("off", pf);
+    $("sd").disabled = pf; $("f").disabled = pf;
+    $("cap").disabled = !S.capon;
+    $("cm-ctl").classList.toggle("off", S.coll === 0);
+    $("type-hint").textContent = pf
+      ? "Finds the cheating or not, like a satellite spotting a hidden site. Meter settings don’t apply."
+      : "Reads a number with some error, so small under-reports can hide inside it (step 2).";
+    $("d-hint").textContent = D_HINT[S.preset];
+  }
+  for (const k of Object.keys(sliders)) {
+    $(k).addEventListener("input", e => {
+      S[k] = +e.target.value;
+      if (["d", "sd", "f", "coll", "cm", "mx"].includes(k)) S.preset = "custom";
+      schedule();
+    });
+  }
+  $("capon").addEventListener("change", e => { S.capon = e.target.checked; schedule(); });
+  document.querySelectorAll("[data-preset]").forEach(b => b.addEventListener("click", () => {
+    S.preset = b.dataset.preset; if (PRESETS[S.preset]) Object.assign(S, PRESETS[S.preset]); schedule();
+  }));
+  document.querySelectorAll("[data-type]").forEach(b => b.addEventListener("click", () => { S.type = b.dataset.type; S.preset = "custom"; schedule(); }));
+  document.querySelectorAll("[data-n]").forEach(b => b.addEventListener("click", () => { S.n = +b.dataset.n; schedule(); }));
+  document.querySelectorAll("[data-rho]").forEach(b => b.addEventListener("click", () => { S.rho = +b.dataset.rho; schedule(); }));
+
+  let queued = false;
+  function schedule() { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; renderModel(); }); } }
+
   const RHOS = Array.from({ length: 50 }, (_, i) => +(0.02 * (i + 1)).toFixed(2));
-  function render() {
+  function renderModel() {
     syncInputs();
     const g = grid(S.mx), sh = shape(S, g);
     const cur = industry(S.n, S.rho, S, g, sh);
     const big = cur.per[0], small = cur.per[cur.per.length - 1];
     const need = S.p / (S.d * S.a);
 
-    // readouts
     $("s-hidden").textContent = pct1(cur.hidden);
     $("s-hidden-sub").textContent = `${pct1(cur.caught)} gets caught in an average year`;
     $("s-big").textContent = pct1(big.delta);
     $("s-big-sub").textContent = S.n > 1 ? `of its own compute. Smallest hides ${pct1(small.delta)}` : "of its own compute";
-    $("s-need").textContent = need > 1 ? "> 1" : need.toFixed(2);
-    $("s-need-sub").textContent = need > 1 ? "Can't be reached even auditing everyone yearly. Raise detection or the fine." : `= permit price ÷ (detection × fine)${S.capon ? ". Ignores the cap" : ""}`;
+    $("s-need").textContent = need > 1 ? "Never" : pct0(need);
+    $("s-need-sub").textContent = need > 1 ? "Even checking every lab every year isn’t enough. Raise the catch rate or the fine." : `of years. = permit price ÷ (catch rate × fine)${S.capon ? ". Ignores the fine limit" : ""}`;
     $("s-audits").textContent = (S.rho * S.n).toFixed(S.rho * S.n < 10 ? 1 : 0);
-    $("s-audits-sub").textContent = `${S.n} developer${S.n === 1 ? "" : "s"} × audit rate ${S.rho.toFixed(2)}`;
+    $("s-audits-sub").textContent = `${S.n} lab${S.n === 1 ? "" : "s"} × checked ${pct0(S.rho)} of years`;
 
     const pill = $("pill"), v = $("verdict");
     const maxed = big.delta >= S.mx - 1e-9;
     const capBinding = S.capon && maxed && S.rho >= need;
-    if (cur.hidden < 0.01) { pill.className = "pill good"; pill.textContent = "Little hiding"; v.textContent = "At these settings almost no compute goes undeclared."; }
+    if (cur.hidden < 0.01) { pill.className = "pill good"; pill.textContent = "Little hiding"; v.textContent = "At these settings almost no compute goes unreported."; }
     else if (maxed) {
-      pill.className = "pill bad"; pill.textContent = "Hiding the maximum";
+      pill.className = "pill bad"; pill.textContent = "Hiding the most it can";
       v.textContent = capBinding
-        ? "Audits would be strong enough, but the flat fine cap is small next to what the largest developers save, so they hide as much as they can."
-        : "Expected fines are below the permit savings, so the largest developer hides as much as it can. Raise the audit rate, detection or the fine.";
-    } else if (S.type === "measure") { pill.className = "pill warn"; pill.textContent = "Shaving inside the noise"; v.textContent = "Large-scale hiding is deterred, but under-reports small enough to sit inside the measurement noise still pay."; }
-    else { pill.className = "pill warn"; pill.textContent = "Some developers hide"; v.textContent = "Some developers, often those with a colluding verifier, still find hiding worth it."; }
+        ? "Checking would be enough, but the fine limit is small next to what the biggest labs save, so they hide as much as they can."
+        : "The expected fine is less than the permit saving, so the biggest lab hides as much as it can. Check more often, catch more, or raise the fine.";
+    } else if (S.type === "measure") { pill.className = "pill warn"; pill.textContent = "Small shaving"; v.textContent = "Big cheating is stopped, but small under-reports that stay inside the meter error still pay (see step 2)."; }
+    else { pill.className = "pill warn"; pill.textContent = "Some labs hide"; v.textContent = "Most labs are honest, but some, usually those whose checker goes easy on them, still find hiding worth it."; }
 
-    // chart 1: sweep
     const s4 = RHOS.map(r => [r, industry(4, r, S, g, sh).hidden]);
     const s200 = RHOS.map(r => [r, industry(200, r, S, g, sh).hidden]);
     const n1 = niceTicks(0, Math.max(S.mx, ...s4.map(p => p[1]), ...s200.map(p => p[1])));
-    const yMax1 = n1.hi, yt1 = n1.ticks;
     lineChart($("c1"), {
-      aria: "Line chart of the share of compute hidden against the audit rate, for 4 and 200 developers",
-      x: [0, 1], y: [0, yMax1], xTicks: [0, 0.2, 0.4, 0.6, 0.8, 1], yTicks: yt1,
-      xFmt: t => t.toFixed(1), yFmt: t => +(t * 100).toFixed(1) + "%",
-      xTitle: "Audit rate (chance a developer is audited in a year)", yTitle: "Share of all compute hidden",
+      aria: "Share of compute hidden against how often labs are checked, for 4 big labs and 200 small labs",
+      x: [0, 1], y: [0, n1.hi], xTicks: [0, 0.2, 0.4, 0.6, 0.8, 1], yTicks: n1.ticks,
+      xFmt: t => pct0(t), yFmt: t => +(t * 100).toFixed(1) + "%",
+      xTitle: "How often a lab is checked (share of years)", yTitle: "Share of all compute hidden",
       now: S.rho,
-      series: [{ name: "4 developers", color: "var(--n4)", pts: s4 }, { name: "200 developers", color: "var(--n200)", dash: true, pts: s200 }],
-      tipX: x => `Audit rate ${x.toFixed(2)}`, tipY: y => pct1(y),
+      series: [{ name: "4 big labs", color: "var(--n4)", pts: s4 }, { name: "200 small labs", color: "var(--n200)", dash: true, pts: s200 }],
+      tipX: x => `Checked ${pct0(x)} of years`, tipY: y => pct1(y),
     });
     const rows = RHOS.filter((r, i) => i % 5 === 4 || i === 0);
-    $("t1").innerHTML = `<tr><th>Audit rate</th><th>4 developers</th><th>200 developers</th></tr>` +
-      rows.map(r => { const i = RHOS.indexOf(r); return `<tr><td>${r.toFixed(2)}</td><td>${pct1(s4[i][1])}</td><td>${pct1(s200[i][1])}</td></tr>`; }).join("");
+    $("t1").innerHTML = `<tr><th>Checked</th><th class="num">4 big labs</th><th class="num">200 small labs</th></tr>` +
+      rows.map(r => { const i = RHOS.indexOf(r); return `<tr><td class="num" style="text-align:left">${pct0(r)} of years</td><td class="num">${pct1(s4[i][1])}</td><td class="num">${pct1(s200[i][1])}</td></tr>`; }).join("");
 
-    // chart 2: payoff curves per unit of own compute
     const cap = S.capon ? S.cap : Infinity;
     const curve = s => g.map((x, i) => [x, S.p * x - S.rho * S.d * sh[i] * Math.min(S.a * x, cap / s)]);
     const cBig = curve(big.s), cSmall = curve(small.s);
     const ys = [...cBig, ...cSmall].map(p => p[1]);
     const n2 = niceTicks(Math.min(0, ...ys), Math.max(0.01, ...ys) * 1.12);
-    const yMin2 = n2.lo, yMax2 = n2.hi, yt2 = n2.ticks, step = n2.step;
     const idxOf = dlt => Math.round(dlt / S.mx * (G - 1));
-    const series2 = [{ name: "Largest developer", color: "var(--accent)", pts: cBig }];
-    if (S.n > 1) series2.push({ name: "Smallest developer", color: "var(--accent)", dash: true, pts: cSmall });
+    const series2 = [{ name: "Biggest lab", color: "var(--accent)", pts: cBig }];
+    if (S.n > 1) series2.push({ name: "Smallest lab", color: "var(--accent)", dash: true, pts: cSmall });
     lineChart($("c2"), {
-      aria: "Expected gain from hiding each share of compute, for the largest and smallest developer",
-      x: [0, S.mx], y: [yMin2, yMax2], xTicks: [0, S.mx / 4, S.mx / 2, 3 * S.mx / 4, S.mx], yTicks: yt2,
-      xFmt: t => (t * 100).toFixed(0) + "%", yFmt: t => t.toFixed(Math.abs(step) < 1 ? 1 : 0),
-      xTitle: "Share of own compute hidden", yTitle: "Expected gain per unit",
+      aria: "Expected gain from hiding each share of compute, for the biggest and smallest lab",
+      x: [0, S.mx], y: [n2.lo, n2.hi], xTicks: [0, S.mx / 4, S.mx / 2, 3 * S.mx / 4, S.mx], yTicks: n2.ticks,
+      xFmt: t => (t * 100).toFixed(0) + "%", yFmt: t => t.toFixed(Math.abs(n2.step) < 1 ? 1 : 0),
+      xTitle: "Share of its own compute the lab hides", yTitle: "Expected gain per unit",
       series: series2,
-      markers: [{ x: big.delta, y: cBig[idxOf(big.delta)][1], color: "var(--accent)", label: `Largest picks ${pct1(big.delta)}` }],
+      markers: [{ x: big.delta, y: cBig[idxOf(big.delta)][1], color: "var(--accent)", label: `Biggest lab picks ${pct1(big.delta)}` }],
       tipX: x => `Hide ${pct1(x)}`, tipY: y => y.toFixed(2),
     });
   }
 
-  render();
+  renderL1();
+  renderL2();
+  renderModel();
 })();
 </script>
-</body>
-</html>

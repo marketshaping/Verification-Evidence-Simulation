@@ -5,7 +5,8 @@ Setting (extends the two-margin model in Christoph, SSRN 6361077):
 * A developer with true compute s declares (1 - delta) * s. Hiding a share
   delta saves p * delta * s in permits.
 * With probability rho it is audited. An audit catches the under-report with
-  probability d(delta). If caught it pays min(a * delta * s, cap).
+  probability d(delta). If caught, it is sanctioned with probability q
+  (sanction_probability; 1 by default) and then pays min(a * delta * s, cap).
 * Measurement instruments (e.g. metering) read true compute with relative
   error sigma. The alarm threshold k * sigma is set so a compliant developer
   is flagged with probability f, so k = Phi^-1(1 - f). Then
@@ -21,6 +22,9 @@ Setting (extends the two-margin model in Christoph, SSRN 6361077):
 
 Each developer picks the delta that maximises its expected payoff. Ties go
 to the smaller delta (honesty when indifferent).
+
+rho, the fine slope a and q can be scalars or one value per world, so the
+same function serves the audit-rate sweep and the sensitivity analysis.
 """
 
 from __future__ import annotations
@@ -54,17 +58,27 @@ def simulate(
     draws: dict[str, np.ndarray],
     margin: str,
     n_firms: int,
-    rho: float,
+    rho: float | np.ndarray,
     policy: dict[str, float],
     cap: float,
     rng: np.random.Generator,
     grid_points: int = 81,
     block: int = 250,
 ) -> dict[str, np.ndarray]:
-    """Run one block of worlds. Returns per-world metrics (arrays of length W)."""
+    """Run a set of worlds. Returns per-world metrics (arrays of length W).
+
+    draws may also hold "penalty_slope" and "sanction_probability" (one value
+    per world); otherwise the policy values are used.
+    """
     p = policy["permit_price"]
-    a = policy["penalty_slope"]
     worlds = len(draws["detection_max"])
+
+    def per_world(x) -> np.ndarray:
+        return np.broadcast_to(np.asarray(x, dtype=float), (worlds,))
+
+    rho_w = per_world(rho)
+    a_w = per_world(draws.get("penalty_slope", policy["penalty_slope"]))
+    q_w = per_world(draws.get("sanction_probability", policy.get("sanction_probability", 1.0)))
 
     sizes = firm_sizes(rng, worlds, n_firms, policy["total_industry_compute"], policy["firm_size_sd"])
     if margin == "evaluation":
@@ -86,12 +100,13 @@ def simulate(
         b = base[sl][:, :, None]
         g = grid[None, None, :]
         det = d_firm[sl][:, :, None] * shape[sl][:, None, :]
-        payoff = p * g * b - rho * det * np.minimum(a * g * b, cap)
+        weight = (rho_w[sl] * q_w[sl])[:, None, None]
+        payoff = p * g * b - weight * det * np.minimum(a_w[sl][:, None, None] * g * b, cap)
         idx = payoff.argmax(axis=2)
         chosen[sl] = grid[idx]
         d_chosen[sl] = np.take_along_axis(det, idx[:, :, None], axis=2)[:, :, 0]
 
-    audited = rng.random((worlds, n_firms)) < rho
+    audited = rng.random((worlds, n_firms)) < rho_w[:, None]
     caught = audited & (rng.random((worlds, n_firms)) < d_chosen) & (chosen > 0)
 
     hidden = chosen * base
@@ -101,7 +116,7 @@ def simulate(
         undetected_share = np.where(total_base > 0, (hidden * ~caught).sum(axis=1) / total_base, np.nan)
     big_evader = chosen >= (0.1 if margin == "compute" else 1.0)
     evading_compute_share = (sizes * big_evader).sum(axis=1) / sizes.sum(axis=1)
-    rho_needed = p / (draws["detection_max"] * a)
+    rho_needed = p / (draws["detection_max"] * a_w * q_w)
 
     return {
         "evaded_share": evaded_share,
@@ -110,3 +125,13 @@ def simulate(
         "rho_needed_no_cap": rho_needed,
         "median_firm_underreport": np.median(chosen, axis=1),
     }
+
+
+def fine_multiple_needed(rho, detection, sanction_probability=1.0):
+    """Smallest fine-to-gain ratio a/p that deters full evasion: 1 / (rho * d * q).
+
+    Exact for pass/fail instruments. For measuring instruments it deters large
+    evasion; under-reports inside the noise band stay profitable at any fine.
+    """
+    with np.errstate(divide="ignore"):
+        return 1.0 / (np.asarray(rho, float) * np.asarray(detection, float) * sanction_probability)

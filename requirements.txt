@@ -1,4 +1,5 @@
-numpy>=1.26
-scipy>=1.11
-matplotlib>=3.8
+# Ranges the code works with. results/*/manifest.json records the exact versions each run used.
+numpy>=1.26,<3
+scipy>=1.11,<2
+matplotlib>=3.8,<4
 pytest>=8

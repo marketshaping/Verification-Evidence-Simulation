@@ -1,0 +1,54 @@
+# How the model works
+
+This page is for anyone on the team who wants to know what the simulation assumes, without reading the code.
+
+## The question
+
+A developer can hide some of its compute, or claim its run is lower-risk than it is. Hiding saves it money (fewer permits, less compliance work). A regulator checks some developers each year. A check catches the hiding with some probability. If caught, the developer may be fined.
+
+**Honest reporting pays when the expected fine is bigger than the gain:**
+
+> chance of being checked × chance a check catches it × chance a caught developer is punished × fine ≥ gain
+
+Rearranged, the **fine needed** as a multiple of the gain is
+
+> fine / gain ≥ 1 / (checking rate × catch rate × chance of punishment)
+
+This is the headline number in each run (`headline.csv`, Figure 1). It extends Christoph, *Risk-Weighted Compute Permit Markets under Imperfect Monitoring* (SSRN 6361077), and follows Kaplow & Shavell (1994).
+
+## Two kinds of instrument
+
+| Kind | Examples | What a check does | Consequence |
+|---|---|---|---|
+| **Pass/fail** | CI-02 third-party verifiers, CI-05 satellite imagery | Finds the violation or doesn't | The formula above is exact. Below the bar, a developer hides as much as it can; above it, nothing |
+| **Measuring** | CI-03+04 attested compute metering | Reads compute with some error and raises an alarm above a threshold | The formula deters large hiding. Small under-reports inside the error band stay hidden at **any** fine (Figure 2) |
+
+For a measuring instrument the alarm threshold is set so an honest developer is wrongly flagged at the false-alarm rate. More meter error means a wider band to hide in. A higher false-alarm rate means a tighter threshold and less room.
+
+## What else is in the model
+
+- **Lenient verifiers (CI-02).** Some verifiers go easy on the lab that pays them. For those, the catch rate is multiplied by a factor below 1.
+- **Few vs many developers.** Total compute is fixed. With 4 developers each is large; with 200 each is small. This only matters when fines have a **flat cap** (as in CA SB 53 and NY RAISE): a large developer's gain can exceed the cap, so no checking rate deters it (Figure 3). A cap that scales with size (EU AI Act) behaves like no cap.
+- **Uncertainty.** Every input is a range (low, central, high). Each run draws 2,000 sets of inputs and reports the spread.
+
+## What the model leaves out
+
+These are known gaps, listed so nobody reads more into the results than is there.
+
+1. **A cheater picks the weakest route.** Lab tests give average catch rates over the tricks they tried. The `worst_case` scenario stands in for this, but it's a guess.
+2. **Instruments are modelled one at a time.** In reality they fail together: metering (CI-04) can't be trusted if attestation (CI-03) is broken.
+3. **A satellite flag isn't a catch.** Someone has to inspect the site and be let in. Inspection capacity isn't modelled.
+4. **Between countries, fines are the wrong lens.** For CI-05 and CI-03 against a state, the question is whether cheating is caught before a dangerous run finishes. The fine model fits checks on labs within one country.
+5. **Hiding 1% of a declared run isn't the safety risk.** Hiding a whole run is. The metering floor (Figure 2) is about accuracy and permit revenue, not catastrophe.
+
+## Where each number comes from
+
+Every input lives in `data/`, with a `status` and a `source`:
+
+| Status | Meaning | How to talk about results that depend on it |
+|---|---|---|
+| `evidence` | Measured for this instrument, from a coded row | Can be cited, with the row |
+| `analogue` | Measured in another regime (tax, nuclear, emissions), from a coded analogue row | "Based on X, assuming it transfers" |
+| `scenario` | Our guess | "If..." only. Never as a finding |
+
+Figure 4 shows which guesses move the result most. Those are the most valuable things for the evidence team to find.
