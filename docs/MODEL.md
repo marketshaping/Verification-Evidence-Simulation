@@ -31,12 +31,28 @@ For a measuring instrument the alarm threshold is set so an honest developer is 
 - **Few vs many developers.** Total compute is fixed. With 4 developers each is large; with 200 each is small. This only matters when fines have a **flat cap** (as in CA SB 53 and NY RAISE): a large developer's gain can exceed the cap, so no checking rate deters it (Figure 3). A cap that scales with size (EU AI Act) behaves like no cap.
 - **Uncertainty.** Every input is a range (low, central, high). Each run draws 2,000 sets of inputs and reports the spread.
 
+## The combined regime (added 20 Oct)
+
+Real regimes run several instruments at once. A cheater doesn't face them one at a time: it picks **one way of hiding** and faces only the checks that can see it.
+
+| Route | Who can catch it | Extra cost to the cheater |
+|---|---|---|
+| 1. Under-report on monitored chips | Verifier; meter (attestation intact) | None |
+| 2. Defeat attestation, then under-report | Inspection that finds the tampering; verifier, partly fooled by fake meter data | Small (key extraction for under $1,000 of kit) |
+| 3. Use a hidden site with diverted chips | Satellite; verifier only through gaps such as chip purchases that don't add up | Large (building and hiding a site) |
+
+The cheater uses whichever route pays best, so **the fine has to deter the cheapest route**. Route 2 is the "attestation failure blinds metering" case.
+
+The usual shortcut is to multiply catch rates, as if every check saw every cheater. That always asks for a smaller fine than route choice does (Figure 5). The model also asks, for each instrument, what the fine would be if it were perfect or removed (Figure 6). Improving an instrument helps only if it covers the route cheaters actually use.
+
+Inputs are in `data/regime.csv`. Apart from the meter's catch rate (Rahman & Tajdari, a lab test), all of them are guesses. Within a route, checks are treated as independent.
+
 ## What the model leaves out
 
 These are known gaps, listed so nobody reads more into the results than is there.
 
 1. **A cheater picks the weakest route.** Lab tests give average catch rates over the tricks they tried. The `worst_case` scenario stands in for this, but it's a guess.
-2. **Instruments are modelled one at a time.** In reality they fail together: metering (CI-04) can't be trusted if attestation (CI-03) is broken.
+2. **The combined regime has only three routes and three instruments.** CI-01 and CI-06/07 aren't in it yet, and route costs are guesses. Small under-reports inside the meter error band are a separate effect (Figure 2), not part of the combined regime.
 3. **A satellite flag isn't a catch.** Someone has to inspect the site and be let in. Inspection capacity isn't modelled.
 4. **Between countries, fines are the wrong lens.** For CI-05 and CI-03 against a state, the question is whether cheating is caught before a dangerous run finishes. The fine model fits checks on labs within one country.
 5. **Hiding 1% of a declared run isn't the safety risk.** Hiding a whole run is. The metering floor (Figure 2) is about accuracy and permit revenue, not catastrophe.

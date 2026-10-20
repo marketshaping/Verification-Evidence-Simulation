@@ -131,3 +131,59 @@ def test_checks_catch_bad_rows():
            dict(rows[1], parameter="detection_z", high="1.4")]           # above 1
     errors = check_rows(bad, "test")
     assert len(errors) == 4
+
+
+# ---- Added 20 Oct: combined regime ----
+
+from spar_sim import regime as R  # noqa: E402
+from spar_sim.params import load_regime  # noqa: E402
+
+
+def _regime_inputs(n=3000, scenario=None, seed=8, lenient=False):
+    ins = {i.instrument_id: i for i in load_instruments(scenario=scenario)}
+    return R.draw_inputs(ins, load_regime(scenario), np.random.default_rng(seed), n, lenient)
+
+
+def test_route_choice_never_needs_less_than_multiplied():
+    for scen in (None, "worst_case"):
+        x = _regime_inputs(scenario=scen)
+        need, _ = R.fine_needed(x)
+        assert np.all(need >= R.fine_needed_multiplied(x) - 1e-12)
+
+
+def test_single_route_matches_one_instrument_formula():
+    # If tampering and hidden sites cost all of the gain, only route 1 is left.
+    x = _regime_inputs(n=50)
+    x = dict(x, tamper_cost=np.ones(50), hidden_site_cost=np.ones(50))
+    need, route = R.fine_needed(x)
+    p = 1 - (1 - x["verifier_catch"] * x["verifier_rate"]) * (1 - x["meter_catch_intact"] * x["meter_rate"])
+    assert np.allclose(need, 1 / p) and np.all(route == 0)
+
+
+def test_perfecting_never_hurts_and_removing_never_helps():
+    x = _regime_inputs()
+    need, _ = R.fine_needed(x)
+    for name in R.INSTRUMENTS:
+        assert np.all(R.fine_needed(x, perfect=name)[0] <= need + 1e-12)
+        assert np.all(R.fine_needed(x, drop=name)[0] >= need - 1e-12)
+
+
+def test_route_catch_matches_monte_carlo():
+    # Draw each check separately and count catches: the closed form should match.
+    rng = np.random.default_rng(9)
+    x = {k: v[:1] for k, v in _regime_inputs(n=1).items()}
+    p = R.route_catch(x)
+    n = 200_000
+    ver = rng.random(n) < x["verifier_rate"][0]
+    ver_hit = rng.random(n)
+    met = (rng.random(n) < x["meter_rate"][0]) & (rng.random(n) < x["meter_catch_intact"][0])
+    tam = (rng.random(n) < x["meter_rate"][0]) & (rng.random(n) < x["tamper_detection"][0])
+    sat = (rng.random(n) < x["satellite_rate"][0]) & (rng.random(n) < x["satellite_catch"][0])
+    vc = x["verifier_catch"][0]
+    sim = {
+        "monitored": np.mean((ver & (ver_hit < vc)) | met),
+        "tamper": np.mean((ver & (ver_hit < vc * x["verifier_tamper_factor"][0])) | tam),
+        "hidden_site": np.mean((ver & (ver_hit < vc * x["verifier_hidden_factor"][0])) | sat),
+    }
+    for r in R.ROUTES:
+        assert abs(sim[r] - p[r][0]) < 0.005, r

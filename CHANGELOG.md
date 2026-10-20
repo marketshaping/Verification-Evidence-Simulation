@@ -1,5 +1,18 @@
 # Changelog
 
+## Fourth run, 20 October 2026
+
+**Model**
+- New: the combined regime (`spar_sim/regime.py`, `data/regime.csv`). The verifier, attested metering and satellite imagery work together, and a cheater picks one of three routes past them: under-report on monitored chips, defeat attestation and then under-report, or use a hidden site. The fine has to deter the cheapest route.
+- Compared with multiplying catch rates, and with each instrument perfected or removed.
+- Two worst-case rows added (meter catch rate, tamper detection). Scenario files now ignore rows for instruments that aren't in the file they modify.
+
+**Outputs**
+- `regime.csv`, `regime_instruments.csv`, `regime_sensitivity.csv`, Figure 5 (multiplied vs route choice) and Figure 6 (weakest link).
+- Everything from the third run is reproduced exactly.
+
+**Tests:** 18, up from 14. They include a check that route choice never needs a smaller fine than multiplication, and a check of the route formula against direct simulation.
+
 ## Third run, 20 October 2026
 
 **Model**

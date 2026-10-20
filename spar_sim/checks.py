@@ -20,6 +20,8 @@ STATUSES = {"evidence", "analogue", "scenario", "design", "not used", "unreporte
 UNIT_INTERVAL = {
     "detection_max", "detection_unconcealed", "concealment_multiplier", "false_alarm",
     "collusion_share", "collusion_multiplier", "natural_audit_rate", "sanction_probability",
+    "meter_catch_intact", "tamper_detection", "tamper_cost", "hidden_site_cost",
+    "verifier_tamper_factor", "verifier_hidden_factor",
 }
 NUMERIC_SKIP = {"margin", "shared_failure"}
 REQUIRED = ["instrument_id", "instrument", "parameter", "low", "central", "high", "unit", "status", "source", "note"]
@@ -61,6 +63,7 @@ def check_rows(rows: list[dict[str, str]], label: str) -> list[str]:
 
 def check_all(data_dir: Path = DATA_DIR) -> list[str]:
     errors = check_rows(read_rows(data_dir / "placeholder_ranges.csv"), "placeholder_ranges.csv")
+    errors += check_rows(read_rows(data_dir / "regime.csv"), "regime.csv")
     for path in sorted((data_dir / "scenarios").glob("*.csv")):
         errors += check_rows(read_rows(path), f"scenarios/{path.name}")
     return errors

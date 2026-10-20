@@ -158,3 +158,95 @@ def plot_sensitivity(rows, instruments, path):
     fig.tight_layout(rect=(0, 0.05, 1, 0.96))
     fig.savefig(path, dpi=200)
     plt.close(fig)
+
+
+def _fmt_multiple(ax):
+    ax.set_xscale("log")
+    ticks = [1, 2, 5, 10, 20, 50]
+    ax.set_xticks(ticks, [f"{t}×" for t in ticks])
+    ax.minorticks_off()
+
+
+def plot_regime(rows, path, current_multiple=5.0, worlds=2000):
+    """Figure 5. Fine needed for the combined regime: multiplied vs route choice."""
+    titles = {"main": "Main ranges", "worst_case": "Worst case"}
+    scenarios = list(dict.fromkeys(r["scenario"] for r in rows))
+    fig, axes = plt.subplots(1, len(scenarios), figsize=(4.6 * len(scenarios), 2.9), sharex=True, squeeze=False)
+    items = [("multiplied", "honest", "Checks multiplied\n(every check sees every cheater)", MUTED),
+             ("route", "honest", "Cheater picks one route,\nhonest verifier", "#2a78d6"),
+             ("route", "lenient", "Cheater picks one route,\nlenient verifier", "#eb6834")]
+    for ax, scen in zip(axes[0], scenarios):
+        for y, (kind, ver, label, col) in enumerate(items[::-1]):
+            r = next(x for x in rows if x["scenario"] == scen and x["verifier"] == ver)
+            lo, mid, hi = (r[f"fine_needed_{kind}_p{q}"] for q in (10, 50, 90))
+            ax.plot([lo, hi], [y, y], color=col, lw=2, solid_capstyle="round")
+            ax.plot([mid], [y], "o", ms=8, color=col, mec="white", mew=2, zorder=3)
+            ax.text(mid, y + 0.28, f"{mid:.1f}×", ha="center", va="bottom", fontsize=7.5, color=INK_2)
+        ax.axvline(current_multiple, color=INK_2, ls=":", lw=1)
+        ax.set_yticks(range(len(items)), [i[2] for i in items[::-1]], fontsize=7.5)
+        ax.tick_params(axis="y", length=0)
+        ax.grid(axis="y", visible=False)
+        _fmt_multiple(ax)
+        ax.set_xlim(1, 30)
+        ax.set_ylim(-0.5, len(items) - 0.2)
+        ax.set_title(titles.get(scen, scen), loc="left")
+        ax.set_xlabel("Fine needed, as a multiple of the gain from hiding")
+    for ax in axes[0][1:]:
+        ax.set_yticklabels([])
+    fig.suptitle("Figure 5. Multiplying catch rates understates the fine a combined regime needs", fontsize=10.5, x=0.01, ha="left")
+    _footer(fig, f"Verifier + attested metering + satellite imagery. Dot: median over {worlds:,} draws; line: 10th–90th percentile. "
+                 "Dotted line: the main assumption, fine = 5× gain.")
+    fig.tight_layout(rect=(0, 0.06, 1, 0.92))
+    fig.savefig(path, dpi=200)
+    plt.close(fig)
+
+
+def plot_weakest_link(head_rows, inst_rows, route_labels, path, verifier="honest", worlds=2000):
+    """Figure 6. Which route cheaters use, and what perfecting or removing each instrument does."""
+    titles = {"main": "Main ranges", "worst_case": "Worst case"}
+    scenarios = list(dict.fromkeys(r["scenario"] for r in head_rows))
+    fig, axes = plt.subplots(len(scenarios), 2, figsize=(9.4, 2.4 * len(scenarios) + 0.9),
+                             gridspec_kw={"width_ratios": [1, 1.25]}, squeeze=False)
+    for k, scen in enumerate(scenarios):
+        h = next(r for r in head_rows if r["scenario"] == scen and r["verifier"] == verifier)
+        ax = axes[k, 0]
+        routes = list(route_labels)
+        shares = [100 * h[f"share_route_{r}"] for r in routes]
+        y = np.arange(len(routes))[::-1]
+        ax.set_axisbelow(True)
+        ax.barh(y, shares, color="#2a78d6", height=0.55)
+        for yi, s in zip(y, shares):
+            ax.text(s + 1.5, yi, f"{s:.0f}%", va="center", fontsize=7.5, color=INK_2)
+        ax.set_yticks(y, [route_labels[r] for r in routes], fontsize=7.5)
+        ax.tick_params(axis="y", length=0)
+        ax.grid(axis="y", visible=False)
+        ax.set_xlim(0, 110)
+        ax.set_title(f"{titles.get(scen, scen)}: route that sets the fine (% of draws)", loc="left", fontsize=9)
+
+        ax = axes[k, 1]
+        sel = [r for r in inst_rows if r["scenario"] == scen and r["verifier"] == verifier]
+        y = np.arange(len(sel))[::-1]
+        for yi, r in zip(y, sel):
+            now, perf, rem = r["fine_needed_now_p50"], r["fine_needed_if_perfect_p50"], r["fine_needed_if_removed_p50"]
+            ax.plot([perf, rem], [yi, yi], color=GRID, lw=3, solid_capstyle="round", zorder=1)
+            ax.plot([perf], [yi], "o", ms=7, color="#1baf7a", mec="white", mew=1.5, zorder=3, label="if perfect" if yi == y[0] else None)
+            ax.plot([rem], [yi], "o", ms=7, color="#eb6834", mec="white", mew=1.5, zorder=3, label="if removed" if yi == y[0] else None)
+            ax.plot([now], [yi], "|", ms=12, mew=2, color=INK, zorder=4, label="now" if yi == y[0] else None)
+            ax.text(min(rem * 1.12, 55), yi, f"{rem:.1f}×", va="center", fontsize=7, color=INK_2)
+        ax.set_yticks(y, [r["label"] for r in sel], fontsize=7.5)
+        ax.tick_params(axis="y", length=0)
+        ax.grid(axis="y", visible=False)
+        _fmt_multiple(ax)
+        ax.set_xlim(1, 80)
+        ax.set_title("Fine needed (median) if one instrument changed", loc="left", fontsize=9)
+        if k == 0:
+            handles, labels = ax.get_legend_handles_labels()
+    fig.suptitle("Figure 6. The weakest link sets the fine: improve the instrument on the cheapest route",
+                 fontsize=10.5, x=0.01, ha="left")
+    fig.legend(handles, labels, loc="upper right", bbox_to_anchor=(0.99, 0.955), ncol=3, fontsize=7.5,
+               handletextpad=0.3, columnspacing=1.0)
+    _footer(fig, f"Combined regime, {verifier} verifier, {worlds:,} draws. 'Perfect' = that instrument always catches what it can see; "
+                 "it still checks at its normal rate and still can't see routes outside its reach.")
+    fig.tight_layout(rect=(0, 0.04, 1, 0.92))
+    fig.savefig(path, dpi=200)
+    plt.close(fig)

@@ -12,6 +12,8 @@ Outputs
   fig2_meter_noise.png   small cheating left by meter error
   fig3_few_vs_many.png   few large vs many small developers under a flat fine cap
   sensitivity.csv, fig4_sensitivity.png   which unknown matters most
+  regime.csv, fig5_regime.png            combined regime: route choice vs multiplied catch rates
+  regime_instruments.csv, regime_sensitivity.csv, fig6_weakest_link.png   which instrument to improve
   summary.csv, sweep.csv, fig_evasion_vs_audit_rate.png   one shared audit rate (as in runs 1 and 2)
   manifest.json, inputs/ what produced this folder
 """
@@ -27,10 +29,11 @@ from pathlib import Path
 import numpy as np
 
 from . import analysis, plots
+from . import regime as reg
 from .checks import check_all
 from .manifest import write_manifest
 from .model import simulate
-from .params import load_instruments, load_policy, load_policy_ranges
+from .params import load_instruments, load_policy, load_policy_ranges, load_regime
 
 ROOT = Path(__file__).resolve().parent.parent
 N_VALUES = (4, 200)
@@ -164,6 +167,31 @@ def main(argv=None):
         sens_rows += analysis.sensitivity(inst, policy, policy_ranges, max(2 * args.worlds, 400), 200, [args.seed, 300, i])
     write_csv(args.out / "sensitivity.csv", sens_rows)
     plots.plot_sensitivity(sens_rows, instruments, args.out / "fig4_sensitivity.png")
+
+    # 6. Combined regime: the cheater picks one route past all the checks.
+    reg_head, reg_inst, reg_sens = [], [], []
+    for k, scen in enumerate(scenarios):
+        sc = None if scen == "main" else scen
+        insts = {i.instrument_id: i for i in load_instruments(scenario=sc)}
+        regime_ranges = load_regime(sc)
+        statuses = {k2: r.status for k2, r in regime_ranges.items()}
+        statuses.update(verifier_catch=insts["CI-02"].ranges["detection_max"].status,
+                        verifier_rate=insts["CI-02"].ranges["natural_audit_rate"].status,
+                        meter_rate=insts["CI-03+04"].ranges["natural_audit_rate"].status,
+                        satellite_catch="scenario", satellite_rate=insts["CI-05"].ranges["natural_audit_rate"].status)
+        for j, lenient in enumerate((False, True)):
+            x = reg.draw_inputs(insts, regime_ranges, np.random.default_rng([args.seed, 400 + k, j]), args.worlds, lenient)
+            h, inst_rows = reg.summarise(x, scen, "lenient" if lenient else "honest",
+                                         policy["penalty_slope"] / policy["permit_price"])
+            reg_head += h
+            reg_inst += inst_rows
+            if not lenient:
+                reg_sens += reg.sensitivity(x, scen, statuses)
+    write_csv(args.out / "regime.csv", reg_head)
+    write_csv(args.out / "regime_instruments.csv", reg_inst)
+    write_csv(args.out / "regime_sensitivity.csv", reg_sens)
+    plots.plot_regime(reg_head, args.out / "fig5_regime.png", policy["penalty_slope"] / policy["permit_price"], args.worlds)
+    plots.plot_weakest_link(reg_head, reg_inst, reg.ROUTE_LABELS, args.out / "fig6_weakest_link.png", worlds=args.worlds)
 
     write_manifest(args.out, vars(args), {"runtime_seconds": round(time.time() - t0, 1)})
     print(f"Wrote results to {args.out} in {time.time() - t0:.0f} s")

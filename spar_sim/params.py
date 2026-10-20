@@ -101,18 +101,35 @@ def scenario_path(name: str) -> Path:
     return SCENARIO_DIR / f"{name}.csv"
 
 
+def apply_scenario(rows: list[dict[str, str]], scenario: str) -> list[dict[str, str]]:
+    """Replace matching rows; add new parameters only for instruments already in rows."""
+    rows = list(rows)
+    index = {(r["instrument_id"], r["parameter"]): i for i, r in enumerate(rows)}
+    known = {r["instrument_id"] for r in rows}
+    for r in read_rows(scenario_path(scenario)):
+        key = (r["instrument_id"], r["parameter"])
+        if key in index:
+            rows[index[key]] = r
+        elif r["instrument_id"] in known:
+            rows.append(r)
+    return rows
+
+
+def load_regime(scenario: str | None = None, path: Path | None = None) -> dict[str, Range]:
+    """Inputs of the combined regime (data/regime.csv), with a scenario applied if given."""
+    rows = read_rows(path or DATA_DIR / "regime.csv")
+    if scenario:
+        rows = apply_scenario(rows, scenario)
+    return {r["parameter"]: Range(_num(r["low"]), _num(r["central"]), _num(r["high"]), r["status"], r["source"])
+            for r in rows}
+
+
 def load_instruments(path: Path | None = None, scenario: str | None = None) -> list[Instrument]:
     """Load instruments, applying a named scenario file on top if given."""
     path = path or DATA_DIR / "placeholder_ranges.csv"
     rows = read_rows(path)
     if scenario:
-        index = {(r["instrument_id"], r["parameter"]): i for i, r in enumerate(rows)}
-        for r in read_rows(scenario_path(scenario)):
-            key = (r["instrument_id"], r["parameter"])
-            if key in index:
-                rows[index[key]] = r
-            else:
-                rows.append(r)
+        rows = apply_scenario(rows, scenario)
     by_id: dict[str, Instrument] = {}
     for row in rows:
         iid = row["instrument_id"]

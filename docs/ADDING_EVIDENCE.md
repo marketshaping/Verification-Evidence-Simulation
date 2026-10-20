@@ -13,7 +13,9 @@ For Nat, or anyone updating `data/placeholder_ranges.csv` after a codebook row i
    | Measurement uncertainty / metering noise | `noise_sd` (as a share of true compute) |
    | Inspection frequency | `natural_audit_rate` (chance a developer is checked in a year, at most 1) |
    | Known evasion, collusion | `concealment_multiplier`, `collusion_share`, `collusion_multiplier` |
-   | Timeliness, inspection effort, shared failure | Recorded but not yet used |
+   | Chance tampering is found (CI-03) | `tamper_detection` in `data/regime.csv` |
+   | Cost of evading (attestation, hidden site) | `tamper_cost`, `hidden_site_cost` in `data/regime.csv` |
+   | Timeliness, inspection effort | Recorded but not yet used |
 
 2. **Write a range, not a point.** `low`, `central`, `high`. If the source gives one number, use its confidence interval. If there's none, use the spread across sources, or say why the range is what it is in `note`.
 3. **Set `status`** to `evidence`, `analogue` or `scenario` (see `docs/MODEL.md`). Only a number from a coded row is `evidence`.

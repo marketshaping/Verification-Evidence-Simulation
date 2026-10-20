@@ -20,7 +20,8 @@ Every results folder holds a `manifest.json` (command, seed, code commit, packag
 
 ## Latest results
 
-`results/third_run/RESULTS.md` (20 Oct): fine needed by instrument, worst case, meter error, few vs many developers, and which unknowns matter most.
+- `results/fourth_run/RESULTS.md` (20 Oct): the combined regime, where a cheater picks one route past all the checks. Also everything from the third run, unchanged.
+- `results/third_run/RESULTS.md` (20 Oct): fine needed by instrument, worst case, meter error, few vs many developers, and which unknowns matter most.
 
 ## Layout
 
@@ -29,14 +30,16 @@ Every results folder holds a `manifest.json` (command, seed, code commit, packag
 | `data/placeholder_ranges.csv` | Instrument inputs. One row per instrument × parameter: `low,central,high`, `status`, `source` |
 | `data/scenarios/` | Files that override some rows, e.g. `worst_case.csv` |
 | `data/policy_scenarios.csv` | Permit price, fine, flat cap, total compute |
+| `data/regime.csv` | Inputs of the combined regime: route costs, tamper detection, meter catch rate |
 | `data/policy_ranges.csv` | Ranges for the fine and chance of punishment, used in the sensitivity analysis |
 | `spar_sim/model.py` | The model |
 | `spar_sim/analysis.py` | Headline table, meter-error curve, sensitivity analysis |
+| `spar_sim/regime.py` | Combined regime: routes, fine needed, weakest link |
 | `spar_sim/run.py` | Runs everything into one results folder |
 | `spar_sim/checks.py` | Input-file checks |
 | `spar_sim/plots.py` | Figures |
-| `tests/` | Tests (14) |
-| `results/` | One folder per run. `first_run` and `second_run` are kept for comparison |
+| `tests/` | Tests (18) |
+| `results/` | One folder per run; earlier runs are kept for comparison |
 | `docs/MODEL.md` | How the model works and what it leaves out |
 | `docs/ADDING_EVIDENCE.md` | How to turn a coded row into inputs |
 | `docs/index.html` | Interactive playground |
