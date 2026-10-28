@@ -1,0 +1,9 @@
+scenario,instrument_id,instrument,natural_audit_rate_p50,detection_p10,detection_p50,detection_p90,fine_needed_honest_p10,fine_needed_honest_p50,fine_needed_honest_p90,fine_needed_captured_p50,fine_needed_captured_p90,share_worlds_deterred_at_5x,hidden_at_5x_mean,undetected_at_5x_mean,undetected_at_5x_p90,fine_for_under_5pct_hidden,N
+main,CI-02a,Third-party verifiers: framework compliance,1.0,0.2783,0.38,0.5019,1.9924,2.6315,3.5934,9.7663,16.718,1.0,0.1236,0.1111,0.2207,11.659,200
+main,CI-03+04,Attested compute metering,0.7827,0.4611,0.6604,0.821,1.4349,2.0627,3.4737,,,0.978,0.0222,0.0199,0.0236,3.981,200
+main,CI-05,Satellite imagery,0.8554,0.2644,0.4857,0.7111,1.6375,2.518,4.6885,,,0.92,0.032,0.0269,0.0,4.642,200
+main,CI-02b,Third-party verifiers: compute reconciliation,1.0,0.2759,0.3796,0.5035,1.9862,2.6345,3.6241,9.8548,17.01,1.0,0.0519,0.0464,0.0833,6.31,200
+worst_case,CI-02a,Third-party verifiers: framework compliance,1.0,0.2796,0.3778,0.4996,2.0018,2.6466,3.5771,9.5449,16.0917,1.0,0.2934,0.2626,0.4038,15.849,200
+worst_case,CI-03+04,Attested compute metering,0.7803,0.183,0.2816,0.3691,3.2861,4.8396,8.491,,,0.5295,0.1855,0.1601,0.3568,8.577,200
+worst_case,CI-05,Satellite imagery,0.8507,0.0667,0.1286,0.2226,5.3309,9.397,18.6131,,,0.066,0.3736,0.3338,0.3815,18.478,200
+worst_case,CI-02b,Third-party verifiers: compute reconciliation,1.0,0.2821,0.3803,0.5021,1.9917,2.6292,3.5449,9.5153,15.7992,1.0,0.1167,0.1043,0.1509,11.659,200

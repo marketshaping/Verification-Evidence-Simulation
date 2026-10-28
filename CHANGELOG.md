@@ -1,5 +1,11 @@
 # Changelog
 
+## Sixth run, 21 October 2026
+- **CI-02 split** into CI-02a (framework compliance, Sidar; risk-class margin) and CI-02b (compute reconciliation, Joon; compute margin). CI-02b is the verifier in the combined regime. Both start from the old CI-02 inputs; CI-02a's catch rate is now marked a guess.
+- Everything from the fifth run reproduces exactly. CI-02b was added last so other instruments keep their random draws.
+- Figure 1 notes when two instruments' lines coincide.
+- Poster figure for the Technical AI Governance Forum: `paper/poster/`.
+
 ## Fifth run, 20 October 2026
 
 **Model**

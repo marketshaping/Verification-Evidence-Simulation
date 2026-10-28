@@ -1,6 +1,8 @@
 # Simulation: what it shows so far and what would help most
 
-*Nat, 20 October 2026. For the team. Based on the third to fifth runs; most inputs are still guesses.*
+*Nat, 20 October 2026, updated 21 October. For the team. Based on the third to sixth runs; most inputs are still guesses.*
+
+**21 Oct:** CI-02 is now CI-02a (framework compliance, Sidar) and CI-02b (compute reconciliation, Joon). CI-02b is the verifier in the combined regime. Both use the old CI-02 inputs until their rows give their own numbers, so the results below are unchanged.
 
 ## The short version
 

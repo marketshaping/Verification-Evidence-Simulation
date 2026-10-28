@@ -176,8 +176,8 @@ def main(argv=None):
         insts = {i.instrument_id: i for i in load_instruments(scenario=sc)}
         regime_ranges = load_regime(sc)
         statuses = {k2: r.status for k2, r in regime_ranges.items()}
-        statuses.update(verifier_catch=insts["CI-02"].ranges["detection_max"].status,
-                        verifier_rate=insts["CI-02"].ranges["natural_audit_rate"].status,
+        statuses.update(verifier_catch=insts["CI-02b"].ranges["detection_max"].status,
+                        verifier_rate=insts["CI-02b"].ranges["natural_audit_rate"].status,
                         meter_rate=insts["CI-03+04"].ranges["natural_audit_rate"].status,
                         satellite_catch="scenario", satellite_rate=insts["CI-05"].ranges["natural_audit_rate"].status)
         for j, lenient in enumerate((False, True)):

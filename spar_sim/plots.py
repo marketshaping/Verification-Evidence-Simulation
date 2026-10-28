@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
 # Reference categorical palette, first three slots (validated all-pairs, light mode).
-INSTRUMENT_COLORS = {"CI-02": "#2a78d6", "CI-03+04": "#eb6834", "CI-05": "#1baf7a"}
+INSTRUMENT_COLORS = {"CI-02a": "#2a78d6", "CI-03+04": "#eb6834", "CI-05": "#1baf7a", "CI-02b": "#eda100"}
 N_COLORS = {4: "#2a78d6", 200: "#eb6834"}
 INK, INK_2, MUTED, GRID = "#0b0b0b", "#52514e", "#8a8984", "#e6e5e1"
 
@@ -83,8 +83,15 @@ def plot_fine_needed(curves, natural, path, current_multiple=5.0):
     axes[0, 0].set_ylabel("Fine needed, as a multiple of the gain from hiding")
     axes[0, 0].legend(fontsize=7, loc="upper right")
     fig.suptitle("Figure 1. How big the fine must be for honest reporting to pay", fontsize=11, x=0.01, ha="left")
+    same = []
+    first = curves[scenarios[0]]
+    ids = list(first)
+    for i, a in enumerate(ids):
+        for b in ids[i + 1:]:
+            if np.allclose(first[a]["p50"], first[b]["p50"]):
+                same.append(f"{a} and {b} have the same inputs so far, so their lines coincide.")
     _footer(fig, "Line: median over parameter draws; band: 10th–90th percentile. Dot: the instrument's normal checking rate. "
-                 "Fine needed = 1 / (checking rate × catch rate), assuming every caught developer is punished.")
+                 "Fine needed = 1 / (checking rate × catch rate), assuming every caught developer is punished. " + " ".join(same))
     fig.tight_layout(rect=(0, 0.05, 1, 0.95))
     fig.savefig(path, dpi=200)
     plt.close(fig)

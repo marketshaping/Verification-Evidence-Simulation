@@ -3,10 +3,11 @@
 % empirical outline. Keep the abstract as plain text: it is pasted into the
 % submission form.
 %
-% Updated 20 Oct (Nat): simulation results from runs 3-5, four figures, a plan
-% for the second half. Figures come from the simulation repo (results/fifth_run)
-% and figures/make_*.py; rebuild them there rather than editing the PDFs.
-% Items marked TODO need a check before submission.
+% 28 Oct (Nat): merged Sidar's 26 Oct draft with the simulation results from
+% the sixth run (21 Oct). Text added in this merge is wrapped in \addtext{...} or a
+% addedblock environment and shows in blue. To remove the blue for submission,
+% change \highlighttrue to \highlightfalse below. Figures come from the
+% simulation repo (paper/make_paper_figs.py); upload them to figures/.
 \documentclass[11pt,a4paper]{article}
 
 \usepackage[T1]{fontenc}
@@ -18,157 +19,310 @@
 \usepackage{parskip}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage[hidelinks]{hyperref}
 
+% ---- Highlighting of text added on 28 Oct ----------------------------------
+\newif\ifhighlight
+\highlighttrue   % change to \highlightfalse to print everything in black
+\definecolor{newtext}{RGB}{20,70,170}
+\newcommand{\addtext}[1]{\ifhighlight{\color{newtext}#1}\else#1\fi}
+\newenvironment{addedblock}{\ifhighlight\color{newtext}\fi}{}
+
+% Evidence symbols: measured, stand-in (another regime), guess, nothing yet
+\newcommand{\evM}{\tikz[baseline=-0.6ex]\fill (0,0) circle (0.9ex);}
+\newcommand{\evS}{\tikz[baseline=-0.6ex]{\draw[line width=0.4pt] (0,0) circle (0.9ex); \fill (0,-0.9ex) arc (-90:90:0.9ex) -- cycle;}}
+\newcommand{\evG}{\tikz[baseline=-0.6ex]\draw[line width=0.4pt] (0,0) circle (0.9ex);}
+\newcommand{\evN}{\textit{\footnotesize none}}
+
 \title{Verification Evidence for Compute Governance:\\What Inspection Regimes Actually Detect}
 % Author order to be agreed by the team before submission.
-\author{Sidar Aslanoglu \and Vir Khosla \and Joon Baek \and Max Perin \and Nat Elder \and Jonas Kgomo \and Joel Naoki Christoph\\[0.6em]
-\small SPAR Fall 2026}
-\date{}
+\author{Sidar Aslanoglu \and Vir Khosla \and Joon Baek \and Max Perin \and Nat Elder \and Jonas Kgomo \and Joel Naoki Christoph}
+\date{SPAR Fall 2026 midterm report}
 
 \begin{document}
 \maketitle
 
+\ifhighlight
+\begin{center}
+\fbox{\parbox{0.9\linewidth}{\small\color{newtext}\textbf{Review copy.} Blue text was added on 28 October: simulation results from the sixth run, three figures, two tables and an appendix on the simulation. Everything in black is the 26 October draft. To print it all in black, change \texttt{\textbackslash highlighttrue} to \texttt{\textbackslash highlightfalse} at the top of the file.}}
+\end{center}
+\fi
+
 \begin{abstract}
 % 45 to 90 words. Write last. No citations.
-Proposals to verify agreements on frontier AI compute assume that their instruments detect violations. We test that assumption. For each instrument, we code the evidence on its measured performance and pair it with an analogue from a regime that has run in practice. Of four coded instruments, two have a measured catch rate, both from laboratory tests. A compliance model shows that the inputs that decide whether cheating pays, the size of fines and the cheapest way to evade, are the least measured.
+Proposals to verify rules on frontier AI compute assume that their instruments detect violations. We test this assumption. For instruments drawn from published proposals, we code the evidence on their measured performance and pair each with an analogue from a regime that has run in practice, such as nuclear safeguards or emissions trading. Of the nine rows coded so far, one reports a measured detection rate, from a test rather than field use. \addtext{A compliance model shows that the inputs that decide whether cheating pays are the least measured.}
 \end{abstract}
 
 \section{Introduction}
 % 90 to 175 words.
-Compute governance proposals rely on a small set of verification instruments: satellite imagery of data centres, on-chip attestation, compute metering, third-party verifiers and others. The proposals state what each instrument should detect. Few report how often it does, at what false-alarm rate or under what evasion. Without these numbers, policymakers cannot tell whether an inspection regime would deter a developer from under-reporting compute.
+Compute governance proposals rely on a small set of verification instruments: satellite imagery of data centres, on-chip attestation, compute metering, third-party verifiers and others. The proposals state what each instrument should detect. Few report how often it does, at what false-alarm rate or under what evasion. Without these numbers, policy makers cannot tell whether an inspection regime would deter a developer from under-reporting compute.
 
-Our research question is what the existing evidence shows about the detection performance of compute verification instruments. We code that evidence directly where it exists. Where it does not, we turn to analogues from inspection regimes with a track record. We then feed the coded values into a compliance model to find the fine at which honest reporting pays, and which missing numbers that answer depends on most.
+Our research question is what the existing evidence shows about the detection performance of compute verification instruments. We code that evidence directly where it exists. Where it does not, we turn to analogues from inspection regimes with a track record. We then feed the coded values into a compliance model to find the audit and penalty levels at which truthful reporting pays.
 
 \section{Related work}
 % 65 to 130 words. Three to five closest works.
-Shavit \cite{shavit2023} proposes compute monitoring through on-chip firmware and sets design targets for detecting large training runs. Aarne, Fist and Withers \cite{aarne2024} describe on-chip mechanisms such as remote attestation. Wasil et al.\ \cite{wasil2024} survey verification methods for international AI agreements. Baker \cite{baker2023} draws lessons for AI treaties from nuclear arms control verification. Christoph \cite{christoph2026} models compute permit markets under imperfect monitoring; our simulation extends that model, following Kaplow and Shavell \cite{kaplow1994}. These works propose instruments or draw analogies. None of them collects measured detection performance across instruments. % TODO: confirm for Wasil et al.
+Shavit \cite{shavit2023} proposes compute monitoring through on-chip firmware and sets design targets for detecting large training runs. Aarne, Fist and Withers \cite{aarne2024} describe on-chip mechanisms such as remote attestation. Wasil et al.\ \cite{wasil2024} survey verification methods for international AI agreements. Baker \cite{baker2023} draws lessons for AI treaties from nuclear arms control verification. Christoph \cite{christoph2026} models compute permit markets under imperfect monitoring; our simulation extends that model. These works propose instruments or draw analogies. None of them collects measured detection performance across instruments.
 
 \section{Methods}
 % 110 to 200 words.
-We keep a case register of instruments from published proposals. An instrument enters the register if it passes four tests. It appears in a published compute governance proposal. It is one instrument: one object checked by one kind of observation, able to raise an alarm on its own. It does not duplicate an existing row under another name. It verifies a claim; restrictions such as export controls are out.
+We keep a case register of instruments from published proposals. An instrument enters the register if it passes four tests: (1) It appears in a published compute governance proposal, (2) It is one instrument: one object checked by one kind of observation, able to raise an alarm on its own, (3) It does not duplicate an existing row under another name, (4) It verifies a claim; restrictions such as export controls are not included.
 
-For each instrument, a coder fills a row with the object verified, the method, the access needed, the threat model and any measured performance, with page references. The coder pairs it with analogues from other regimes and records the published target, measured results, inspection effort and known evasion. Two labels go with every pair: evidence confidence and transfer confidence. Each instrument is assigned two independent coders. A final field tags which model input the row informs (Figure~\ref{fig:pipeline}).
+For each instrument, a coder fills a row with the object verified, the method, the access needed, the threat model and any measured performance. The coding rules ask for a source and page or section for each empirical entry, with design targets, laboratory results and field observations kept apart. The coder then pairs the instrument with one or more analogues from other regimes and records the published target, measured results, inspection effort and known evasion. Two labels go with every pair: evidence confidence (high, medium, low or absent) and transfer confidence (high, medium or low, with a one-line reason). Each instrument is assigned two independent coders, and we compare their rows to fix the field definitions. \addtext{A final field tags which model input the row informs (Figure~\ref{fig:pipeline}).}
 
-Each tagged value becomes a range, marked as measured, stand-in or guess. In the model a developer hides compute when the saving exceeds the expected penalty: checking rate times catch rate times the chance of punishment times the fine \cite{christoph2026,kaplow1994}. When several instruments run together, the developer picks the one route past them that pays best. Each result draws 2,000 sets of inputs \cite{simrepo}.
+Each row informs one or more parameters of a compliance model in which a developer's expected penalty equals the audit probability times the detection probability \addtext{times the chance of punishment} times the fine \cite{christoph2026,kaplow1994}\addtext{; Appendix~\ref{app:sim} describes it}.
 
 \begin{figure}[t]
+\begin{addedblock}
 \centering
 \begin{tikzpicture}[
-  box/.style={draw=black!55, rounded corners=3pt, align=center, font=\small, minimum height=1.25cm, text width=2.6cm, fill=#1},
+  box/.style={draw, thin, align=center, font=\small, minimum height=1.25cm, text width=2.6cm, fill=#1},
   box/.default=white,
-  arr/.style={-{Stealth[length=2.2mm]}, thick, draw=black!65},
-  lab/.style={font=\scriptsize, text=black!70, align=center}]
-\node[box=blue!6] (code) {\textbf{Codebook}\\instrument and analogue rows, tagged in column O};
-\node[box=blue!6, right=0.6cm of code] (range) {\textbf{Input ranges}\\low, central, high; measured, stand-in or guess};
-\node[box=blue!6, right=0.6cm of range] (model) {\textbf{Compliance model}\\developer picks the cheapest route past all checks};
-\node[box=orange!10, right=0.6cm of model] (out) {\textbf{Results}\\fine needed; which unknown matters most};
+  arr/.style={-{Latex[length=2mm]}, draw},
+  lab/.style={font=\scriptsize\itshape, align=center}]
+\node[box=white] (code) {\textbf{Codebook}\\instrument and analogue rows, tagged by model input};
+\node[box=white, right=0.6cm of code] (range) {\textbf{Input ranges}\\low, central, high; measured, stand-in or guess};
+\node[box=white, right=0.6cm of range] (model) {\textbf{Compliance model}\\developer picks the cheapest route past all checks};
+\node[box=black!6, right=0.6cm of model] (out) {\textbf{Results}\\fine needed; which unknown matters most};
 \draw[arr] (code) -- (range);
 \draw[arr] (range) -- (model);
 \draw[arr] (model) -- (out);
-\draw[arr, draw=orange!80!black] (out.south) -- ++(0,-0.75) -| node[lab, pos=0.25, below] {what to look for next: the inputs that move the result most} (code.south);
+\draw[arr, dashed] (out.south) -- ++(0,-0.75) -| node[lab, pos=0.25, below] {what to look for next: the inputs that move the result most} (code.south);
 \end{tikzpicture}
 \caption{How evidence reaches the model and how the model directs the next round of coding.}
 \label{fig:pipeline}
+\end{addedblock}
 \end{figure}
 
 \section{Results}
-% 155 to 265 words.
+% 155 to 265 words. Update the table once the second coder rows are in.
 \subsection{Evidence}
-Table~\ref{tab:rows} shows the first coded rows: four instruments, each paired with one analogue. Figure~\ref{fig:evidence} maps what backs each model input.
+Table~\ref{tab:rows} shows the nine rows coded so far: five instruments and four analogues. \addtext{Table~\ref{tab:evidence} shows what backs each model input.}
 
 \begin{table}[h]
 \centering
 \footnotesize
-\begin{tabular}{@{}llp{3.3cm}l@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{3.2cm}l@{}}
 \toprule
-Instrument & Analogue & Measured catch rate & Evidence\textsuperscript{a} \\
+Instrument & Analogue & Measured detection rate & Evidence confidence \\
 \midrule
-CI-02 Third-party verifiers & EU emissions trading & none & high \\
+CI-02a Framework-compliance verifier & EU emissions trading & none & high \\
+CI-02b Compute-declaration verifier & not yet coded & none & -- \\
 CI-03 On-chip attestation & IAEA remote monitoring & none & high \\
-CI-04 Compute metering & Nuclear material accountancy & lab 98\%; 43\% against best evasion & high \\
-CI-05 Satellite imagery & IAEA satellite imagery & lab 98.6\%, unhidden sites only & medium \\
+CI-04 Compute metering & Nuclear material accountancy & none (lab studies cited) & high \\
+CI-05 Satellite imagery & IAEA satellite imagery & one test, unconcealed sites & medium \\
 \bottomrule
 \end{tabular}
-\caption{First coded rows, one coder per row. Each line is one instrument row and its analogue row. CI-01 (cloud reporting) has no coder yet.\\
-\textsuperscript{a} Evidence confidence covers the coded findings as a whole, not a catch rate.}
+\caption{Rows coded by 26 October, one coder per row. Evidence confidence is the label on the analogue row.}
 \label{tab:rows}
 \end{table}
 
-Two instruments have a measured catch rate, both from laboratory tests. A classifier found 98.6\% of data centres in 230 images, with every miss below 4\,MW \cite{clymer}; its tests did not include concealment. GPU telemetry detected 98\% of training runs, but only 43\% when the evader knew how the detector worked \cite{rahman2026}. None of the four analogues reports a catch rate. Two inputs have no evidence for any instrument: how large fines are relative to the gain from cheating, and how often detection leads to a penalty.
+One instrument has a measured detection rate, from a test rather than field use. A classifier built by Joshua Clymer found 98.6 percent of 214 data-centre test images at a 1 percent false positive rate, with every miss below 4\,MW, after he removed 18 misses by hand as mislabelled or cut off \cite{clymer}. Its tests did not include concealment. For compute metering, the coded row treats detection as a scenario input but cites laboratory studies that tell training from other work by GPU telemetry or power draw, with 97 to 98 percent accuracy that falls to 43 to 87 percent against the hardest disguised workloads in one study \cite{gargiulo2026,rahman2026}. None of the four analogues reports a measured detection rate. The rows do give values for audit effort, timeliness, false alarms and metering noise. The first paired comparison found that the two CI-02 coders had coded different instruments, so we split CI-02 into CI-02a and CI-02b.
 
-\begin{figure}[t]
+\begin{table}[t]
+\begin{addedblock}
 \centering
-\includegraphics[width=\linewidth]{figures/evidence_map.pdf}
-\caption{What backs each model input, by instrument. The two boxed rows have no evidence anywhere and no label in the codebook yet.}
-\label{fig:evidence}
-\end{figure}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Model input & CI-02a/b verifiers & CI-03 attestation & CI-04 metering & CI-05 satellites \\
+\midrule
+Catch rate, normal use & \evS\ \scriptsize tax audits & \evN & \evG\textsuperscript{b} \scriptsize lab studies & \evM\ \scriptsize test, 98.6\%\textsuperscript{c} \\
+Catch rate, best evasion & \evN & \evN & \evG\textsuperscript{b} \scriptsize lab studies & \evN \\
+Catch rate by site size & & & & \evM\textsuperscript{d} \\
+False alarms & & & \evM\ \scriptsize lab, 3\% & \evM\ \scriptsize 1\% \\
+Meter error & & & \evS\ \scriptsize nuclear & \\
+How often checked & \evS\ \scriptsize yearly & \evS\ \scriptsize 3 months & \evG & \evG \\
+Lenient checkers & \evG & & & \\
+Cost of evading & & \evG & & \evG \\
+\midrule
+Fine compared with gain\textsuperscript{a} & \evN & \evN & \evN & \evN \\
+Caught, then punished\textsuperscript{a} & \evN & \evN & \evN & \evN \\
+\bottomrule
+\end{tabular}
+\caption{What backs each model input, by instrument. \protect\evM\ measured for this instrument; \protect\evS\ measured in another regime (stand-in); \protect\evG\ a stated guess; \protect\evN: no evidence yet; blank: not relevant. CI-02b is not yet coded, so the model uses CI-02a's values for both.\\
+\textsuperscript{a} No codebook label yet; four new labels are proposed. \textsuperscript{b} The row cites laboratory studies (97--98\%; 43--87\% against the hardest disguised workloads) but treats detection as a guess. \textsuperscript{c} Sites not deliberately hidden. \textsuperscript{d} Coded in the CI-05 row, not yet used in the model.}
+\label{tab:evidence}
+\end{addedblock}
+\end{table}
 
 \subsection{Simulation}
-Results use placeholder ranges wherever evidence is missing, so they show which numbers matter, not what the true values are.
+\begin{addedblock}
+All results use placeholder ranges, so they show which numbers matter, not true values \cite{simrepo}.
 
-\emph{The fine, not the checking rate, is the question.} Most instruments already check about once a year. At that rate, a fine of 2--3 times the gain deters a developer facing an honest checker. A lenient verifier raises this to about 10 times.
+\emph{Multiplying catch rates overstates a regime.} A cheater picks the one route past all the checks that pays best. With route choice, the fine needed is 2.0 times the gain with middle-range inputs and 4.4 times in a worst case; multiplying the same catch rates gives 1.1 and 1.4 (Figure~\ref{fig:regime}). Cheaters break the chip checks or train at a hidden site, so satellites carry the regime and the meter's high laboratory catch rate barely matters.
 
-\emph{Multiplying catch rates overstates a regime.} A cheater does not face each check in turn: it picks one route past all of them. With route choice, the fine needed is 2.0 times the gain with middle-range inputs and 4.4 times in a worst case; multiplying the same catch rates gives 1.1 and 1.4 (Figure~\ref{fig:regime}). Cheaters almost never go past the meter. They defeat attestation, or use a hidden site, so satellites carry the regime: without them the fine needed rises to about 14 times.
-
-\emph{Small, slow runs are the hard ones.} A 10\textsuperscript{26} FLOP run takes about a month on 100,000 GPUs or 2.7 years on 3,000 GPUs in small sites that imagery mostly misses. The fine needed rises from about 2 times for the first to 7--10 times for the second (Figure~\ref{fig:size}).
+\emph{Small, slow runs are the hard ones.} A 10\textsuperscript{26} FLOP run takes a month on 100,000 GPUs, or 2.7 years on 3,000 GPUs in small sites that imagery mostly misses. The fine needed rises from about 2 to 7--10 times the gain (Figure~\ref{fig:size}). Slow runs need checks that do not rely on seeing a site.
+\end{addedblock}
 
 \begin{figure}[t]
+\begin{addedblock}
 \centering
 \includegraphics[width=\linewidth]{figures/regime.pdf}
-\caption{Fine needed for a regime of verifiers, attested metering and satellite imagery. Dot: median over 2,000 draws; line: 10th--90th percentile; dotted line: the main assumption of a fine 5 times the gain.}
+\caption{Multiplying catch rates asks for a smaller fine than a cheater who picks its route would need. Regime of verifiers, attested metering and satellite imagery. Lenient: some verifiers go easy on the developer that pays them. Markers: median over 2,000 draws; bars: 10th--90th percentile; dashed line: the main assumption of a fine 5 times the gain.}
 \label{fig:regime}
+\end{addedblock}
 \end{figure}
 
 \begin{figure}[t]
+\begin{addedblock}
 \centering
 \includegraphics[width=\linewidth]{figures/size.pdf}
-\caption{Fine needed against the size of a hidden run. The cheater splits the run across as many sites as suits it; each extra site costs efficiency. Top axis: time that size needs to reach 10\textsuperscript{26} FLOP at 40\% utilisation.}
+\caption{Small, slow runs need the largest fines. Fine needed against the size of a hidden run. The cheater splits the run across as many sites as suits it; each extra site costs efficiency. Top axis: time that size needs to reach 10\textsuperscript{26} FLOP at 40\% utilisation.}
 \label{fig:size}
+\end{addedblock}
 \end{figure}
 
 \section{Discussion}
 % 110 to 175 words.
-Proposals assume detection rates that few sources measure, and the analogues we expected to fill the gap do not report them either. The model also shows that detection is one of three inputs that decide deterrence, with the size of the fine and the chance a caught developer is punished. Neither has been coded. A measured catch rate matters only for the route a cheater would actually use: laboratory rates against cooperative subjects say little about a strategic evader. Flat caps on fines, as in California SB~53 \cite{sb53} and the New York RAISE Act \cite{raise}, fail when a few large developers dominate.
+Proposals assume detection rates that few sources measure, and none measures in an operating regime. The analogues we expected to fill this gap do not report them either. Instead, the rows record attacks that worked: TEE.fail passed NVIDIA's attestation check by relaying a genuine H100 report \cite{chuang2025}, and a laboratory team reported defeating all 198 tamper-indicating seals it studied \cite{johnston2002}. \addtext{The model adds that detection is one of three inputs that decide deterrence, alongside the size of the fine and the chance of punishment, neither of which has evidence for any instrument (Table~\ref{tab:evidence}). If a large developer gains more than a flat cap on fines, as in California SB~53 \cite{sb53} and the New York RAISE Act \cite{raise}, no checking rate deters it.}
 
-The study has three limitations so far. Each row has one coder. Most ranges are placeholders. Four instruments cover a small part of the proposals. Table~\ref{tab:plan} sets out the second half.
+The study has three limitations so far. Each row has one coder. The simulation runs on placeholder ranges. Five instruments cover a small part of the proposals. In the second half we will complete the second coder rows, add new instruments that pass the four tests and run the model with coded ranges \addtext{(Table~\ref{tab:plan})}.
 
 \begin{table}[H]
+\begin{addedblock}
 \centering
 \footnotesize
 \begin{tabular}{@{}lp{0.72\linewidth}@{}}
 \toprule
 By & Work \\
 \midrule
-21 Oct & Agree four new codebook tags: fine vs gain, punishment follow-through, evasion cost, worst-case catch rate \\
-9 Nov & Second coder rows in; agreed worst-case values; rerun with coded ranges \\
-24 Nov & Code cloud reporting (CI-01) and chip tracking, the checks that cover slow runs; replace the guessed site-size curve with coded values \\
+28 Oct & Second coder rows for CI-03 and CI-04 \\
+9 Nov & All second coder rows in the model; four new codebook tags applied (fine vs gain, punishment follow-through, evasion cost, worst-case catch rate); worst-case values agreed by coder pairs \\
+24 Nov & Final report outline; code cloud reporting (CI-01) and chip tracking, the checks that cover slow runs; replace the guessed site-size curve with coded values \\
 14 Dec & Judge instruments used between states on timeliness (caught before a run finishes); final figures and summary table \\
 \bottomrule
 \end{tabular}
 \caption{Plan for the second half.}
 \label{tab:plan}
+\end{addedblock}
 \end{table}
 
 \section{Conclusion}
 % 45 to 90 words.
-Measured evidence on the detection performance of compute verification instruments is thin, and it is thinnest where it matters most: against deliberate evasion, and on the sanctions that follow detection. Our coded dataset shows this gap instrument by instrument. Our compliance model shows which missing numbers decide whether an inspection regime deters cheating, and so where the second half of the project should look.
+Measured evidence on the detection performance of compute verification instruments is close to absent. Our coded dataset makes this gap visible instrument by instrument. Our compliance model shows which missing numbers matter most for whether an inspection regime deters cheating. So far, only satellite imagery has a measured detection rate.
 
 \begin{thebibliography}{99}
 \bibitem{aarne2024} O.~Aarne, T.~Fist and C.~Withers, \emph{Secure, Governable Chips: Using On-Chip Mechanisms to Manage National Security Risks from AI \& Advanced Computing}. Center for a New American Security, January 2024.
 \bibitem{baker2023} M.~Baker, ``Nuclear Arms Control Verification and Lessons for AI Treaties,'' arXiv:2304.04123, 2023.
 \bibitem{christoph2026} J.~N.~Christoph, ``Risk-Weighted Compute Permit Markets under Imperfect Monitoring,'' SSRN working paper 6361077, 2026.
-\bibitem{clymer} J.~Clymer, ``Data centers that are not deliberately concealed will be easy to locate,'' 2025. Code: \url{https://github.com/Joshuaclymer/data_center_classifier}. % TODO: venue
-\bibitem{kaplow1994} L.~Kaplow and S.~Shavell, ``Optimal Law Enforcement with Self-Reporting of Behavior,'' \emph{Journal of Political Economy} 102(3): 583--606, 1994.
-\bibitem{rahman2026} Rahman and Tajdari, 2026, ICML workshop paper on detecting training runs from GPU telemetry, as coded in row CI-04. % TODO: full authors and title from Vir's row
-\bibitem{raise} New York Responsible AI Safety and Education (RAISE) Act, 2025, as amended. % TODO: check the current penalty provisions after the chapter amendments
-\bibitem{sb53} California Senate Bill 53, Transparency in Frontier Artificial Intelligence Act, 2025.
+\bibitem{chuang2025} J.~Chuang et al., ``TEE.fail: Breaking Trusted Execution Environments via DDR5 Memory Bus Interposition,'' October 2025, \url{https://tee.fail/files/paper.pdf}.
+\bibitem{clymer} J.~Clymer, ``Data centers that are not deliberately concealed will be easy to locate,'' 2025. Code: \url{https://github.com/Joshuaclymer/data_center_classifier}.
+\bibitem{gargiulo2026} S.~Gargiulo and G.~Kulp, ``Workload Identification with Physical Side Channels for AI Governance,'' arXiv:2609.00309, 2026.
+\bibitem{johnston2002} R.~G.~Johnston, A.~R.~E.~Garcia and A.~N.~Pacheco, ``The Efficacy of Tamper-Indicating Devices,'' \emph{Journal of Homeland Security}, April 2002, archived at \url{https://web.archive.org/web/20020427060818/http://www.homelandsecurity.org:80/journal/Articles/tamper2.htm}.
+\bibitem{kaplow1994} \addtext{L.~Kaplow and S.~Shavell, ``Optimal Law Enforcement with Self-Reporting of Behavior,'' \emph{Journal of Political Economy} 102(3): 583--606, 1994.}
+\bibitem{rahman2026} R.~Rahman and S.~Tajdari, ``Detecting Hidden ML Training With Zero-Overhead Telemetry,'' arXiv:2606.19262, 2026.
+\bibitem{raise} \addtext{New York Responsible AI Safety and Education (RAISE) Act, signed 19 December 2025, as amended by Chapter 96 of the Laws of 2026: civil penalties up to \$1 million for a first violation and \$3 million for later ones.}
+\bibitem{sb53} \addtext{California Senate Bill 53, Transparency in Frontier Artificial Intelligence Act, 2025: civil penalties up to \$1 million per violation.}
 \bibitem{shavit2023} Y.~Shavit, ``What Does It Take to Catch a Chinchilla? Verifying Rules on Large-Scale Neural Network Training via Compute Monitoring,'' arXiv:2303.11341, 2023.
-\bibitem{simrepo} N.~Elder, Verification-Evidence-Simulation, \url{https://github.com/marketshaping/Verification-Evidence-Simulation}, fifth run, 20 October 2026.
+\bibitem{simrepo} N.~Elder, Verification-Evidence-Simulation, \url{https://github.com/marketshaping/Verification-Evidence-Simulation}, \addtext{sixth run, 21 October 2026}.
 \bibitem{wasil2024} A.~R.~Wasil et al., ``Verification Methods for International AI Agreements,'' arXiv:2408.16074, 2024.
 \end{thebibliography}
+
+\clearpage
+\appendix
+\begin{addedblock}
+\section{The simulation}
+\label{app:sim}
+% Outside the 1,000-word limit. Plain language on purpose: this is the section
+% teammates and readers outside economics should be able to follow.
+
+\subsection{What it is for}
+The evidence dataset says what is known about each verification instrument. The simulation asks what that knowledge is worth: \emph{given what we have coded, would a rule backed by these instruments stop a developer from hiding compute, and which missing number decides the answer?} It is a tool for directing the evidence search and for testing claims made about verification regimes. It is not a forecast. Most inputs are still placeholders, and every input is labelled measured, stand-in or guess so that results can say what they rest on.
+
+Table~\ref{tab:glance} summarises the simulation.
+
+\begin{table}[H]
+\ifhighlight\color{newtext}\fi
+\centering
+\small
+\begin{tabular}{@{}>{\bfseries}p{2.6cm}p{12.2cm}@{}}
+\toprule
+Question & At the rate each instrument already checks, how large must a fine be, relative to what a developer gains by hiding compute, for honest reporting to pay? \\
+\addlinespace
+Takes in & One range (low, central, high) per input per instrument, taken from coded rows and labelled measured, stand-in or guess: catch rates, false alarms, meter error, checking rates, the share of lenient verifiers, evasion costs, and the size of fines. \\
+\addlinespace
+Does & Draws 2,000 sets of inputs. For each, a developer weighs the saving from hiding against the expected fine, using every way of hiding the instruments leave open, and picks the best. \\
+\addlinespace
+Gives back & The fine needed per instrument and for the regime as a whole; which way of hiding sets it; what would change if one instrument were perfect or removed; how the answer depends on run size; and which unknown input moves the answer most. \\
+\addlinespace
+Does not & Predict real behaviour, price a real fine, or say anything about instruments nobody has coded. It does not yet model checks between states, where the question is speed of detection, not fines. \\
+\bottomrule
+\end{tabular}
+\caption{The simulation at a glance.}
+\label{tab:glance}
+\end{table}
+
+\subsection{How it works}
+\paragraph{One developer, one check.} A developer can save some amount by under-reporting compute. If it is checked (chance $\rho$), the check catches the under-report (chance $d$), and a caught developer is punished (chance $q$), it pays a fine $a$ per unit hidden. Hiding pays when the saving $p$ exceeds the expected fine, so honest reporting needs
+\[
+  \frac{a}{p} \;\ge\; \frac{1}{\rho\, d\, q}.
+\]
+The right side is the \emph{fine needed}, as a multiple of the gain. \emph{Worked example:} a verifier checks every year ($\rho = 1$), catches about a third of misreporting ($d = 0.35$, from tax audits), and every caught developer is punished ($q = 1$). The fine needed is $1/0.35 \approx 2.9$ times the gain. If the verifier goes easy, keeping a quarter of its catch rate, the fine needed rises to about 11 times.
+
+\paragraph{Two kinds of check.} Satellites and verifiers are \emph{pass or fail}: they find the violation or they do not. Meters \emph{measure}: they read compute with some error, and the alarm is set so an honest developer is wrongly flagged only rarely. Small under-reports that stay inside the error band are never caught, so a meter leaves a floor of hidden compute roughly the size of its error, whatever the fine.
+
+\paragraph{Several checks at once.} A developer does not face each check in turn. It picks one way of hiding, a \emph{route}, and meets only the checks that can see that route (Figure~\ref{fig:routes}). For each route $r$ with extra cost $c_r$ and chance of being caught $P_r$, the fine needed is $(1-c_r)/(q P_r)$, and the regime needs the largest of these. Multiplying all catch rates together, as if every check saw every cheater, always gives a smaller number. That gap is the error Figure~\ref{fig:regime} measures.
+
+\begin{figure}[H]
+\ifhighlight\color{newtext}\fi
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  devbox/.style={draw=black, thin, fill=white, align=center, text width=1.8cm, minimum height=1.2cm},
+  routebox/.style={draw=black, thin, fill=white, align=left, text width=5.0cm, minimum height=1.05cm, inner sep=4pt},
+  checkbox/.style={draw=black, thin, fill=black!5, align=left, text width=3.9cm, minimum height=1.05cm, inner sep=4pt, font=\scriptsize},
+  resbox/.style={draw=black, thin, fill=white, align=center, text width=2.2cm, minimum height=1.2cm},
+  arr/.style={-{Latex[length=2mm]}, draw=black},
+  head/.style={font=\scriptsize\itshape}]
+\node[devbox] (d) {Developer hides compute};
+\node[routebox, right=0.7cm of d] (r2) {\textbf{2. Break the chip checks, then under-report}\\{\scriptsize small cost; the meter goes blind}};
+\node[routebox, above=0.3cm of r2] (r1) {\textbf{1. Under-report on metered chips}\\{\scriptsize no extra cost}};
+\node[routebox, below=0.3cm of r2] (r3) {\textbf{3. Use a hidden site}\\{\scriptsize large cost; grows with each extra site}};
+\node[checkbox, right=0.5cm of r1] (c1) {verifier\\meter};
+\node[checkbox, right=0.5cm of r2] (c2) {inspection finds tampering\\verifier, partly fooled};
+\node[checkbox, right=0.5cm of r3] (c3) {satellite; small sites are hard to see\\verifier, only through gaps};
+\node[resbox, right=0.5cm of c2] (o) {Caught?\\{\scriptsize punished with chance $q$, pays fine $a$}};
+\node[head, above=0.05cm of r1] (h1) {Ways of hiding};
+\node[head] at (c1.north |- h1) {Checks that can see it};
+\foreach \r/\c in {r1/c1, r2/c2, r3/c3} { \draw[arr] (d.east) -- (\r.west); \draw[arr] (\r.east) -- (\c.west); \draw[arr] (\c.east) -- (o.west); }
+\end{tikzpicture}
+\caption{The three ways of hiding in the combined regime, and the checks that can see each one. The developer picks the route that pays best, so the fine has to deter the cheapest route. In the middle-range inputs cheaters break the chip checks (59\% of draws); in the worst case they use a hidden site (89\%).}
+\label{fig:routes}
+\end{figure}
+
+\paragraph{Run size.} A hidden run of $G$ GPUs needs about $1.2\,G$ kW. The developer can split it across $k$ sites. Imagery finds a smaller site less often (half of sites at 3--10\,MW), but each extra site costs 1--8\% of the gain. The developer picks the $k$ that is hardest to deter. This produces Figure~\ref{fig:size}.
+
+\paragraph{Uncertainty and sensitivity.} Every input is drawn from a triangular distribution over its range, 2,000 times, with a fixed seed. Results report the median and the 10th--90th percentiles. To find which unknown matters most, all inputs are drawn together and each one's rank correlation with the outcome is measured. A worst-case scenario replaces selected ranges with the weakest route the evidence knows about, such as the 43\% catch rate of GPU monitoring against the hardest disguised runs.
+
+\subsection{How it was built and checked}
+Table~\ref{tab:runs} lists the runs so far. Each run's folder records the command, code version, package versions and a copy of every input, and new inputs are added without changing earlier results for the same seed. Twenty-two automated tests check, among other things, that the model matches Christoph's baseline, that route choice never needs a smaller fine than multiplication, and that the route formula agrees with a direct simulation of individual checks.
+
+\begin{table}[H]
+\ifhighlight\color{newtext}\fi
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Run & Date & What it added \\
+\midrule
+1 & 13 Oct & Baseline model; few vs many developers; flat fine caps \\
+2 & 18 Oct & First coded inputs: tax-audit catch rate (CI-02), nuclear meter error (CI-04) \\
+3 & 20 Oct & Each instrument's own checking rate; fine needed; worst case; sensitivity analysis \\
+4 & 20 Oct & Combined regime: the developer picks one route past all checks \\
+5 & 20 Oct & Run size: splitting a hidden run across sites \\
+6 & 21 Oct & Verifiers split: framework compliance (CI-02a), compute reconciliation (CI-02b) \\
+\bottomrule
+\end{tabular}
+\caption{Simulation runs to date. Code and results: \cite{simrepo}.}
+\label{tab:runs}
+\end{table}
+
+\subsection{What would change the answers}
+In order of how much they move the results: the size of fines relative to the gain from cheating; how often detection leads to a penalty; how easily each check can be bypassed (breaking chip checks, hiding a site, a lenient verifier); and detection by site size. The first two have no evidence for any instrument yet. Table~\ref{tab:plan} sets out how the second half will fill these gaps.
+\end{addedblock}
 
 \end{document}

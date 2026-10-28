@@ -1,0 +1,22 @@
+instrument_id,input,label,status,spearman,abs_spearman,worlds
+CI-02a,fine_multiple,Fine / gain,scenario,-0.5413,0.5413,4000
+CI-02a,collusion_share,Share of lenient verifiers,scenario,0.3359,0.3359,4000
+CI-02a,detection_max,Catch rate per check,scenario,-0.2592,0.2592,4000
+CI-02a,sanction_probability,Chance caught lab is punished,scenario,-0.2464,0.2464,4000
+CI-02a,collusion_multiplier,How lenient they are,scenario,-0.2171,0.2171,4000
+CI-03+04,noise_sd,Meter error,analogue,0.6882,0.6882,4000
+CI-03+04,fine_multiple,Fine / gain,scenario,-0.4068,0.4068,4000
+CI-03+04,natural_audit_rate,How often checked,scenario,-0.2734,0.2734,4000
+CI-03+04,detection_max,Catch rate per check,scenario,-0.2359,0.2359,4000
+CI-03+04,false_alarm,False-alarm rate,analogue,-0.1716,0.1716,4000
+CI-03+04,sanction_probability,Chance caught lab is punished,scenario,-0.1679,0.1679,4000
+CI-05,fine_multiple,Fine / gain,scenario,-0.4409,0.4409,4000
+CI-05,concealment_multiplier,Effect of hiding the site,scenario,-0.3247,0.3247,4000
+CI-05,sanction_probability,Chance caught lab is punished,scenario,-0.2077,0.2077,4000
+CI-05,natural_audit_rate,How often checked,scenario,-0.123,0.123,4000
+CI-05,detection_unconcealed,"Catch rate, unhidden site",evidence,-0.0088,0.0088,4000
+CI-02b,fine_multiple,Fine / gain,scenario,-0.5519,0.5519,4000
+CI-02b,collusion_share,Share of lenient verifiers,scenario,0.4023,0.4023,4000
+CI-02b,detection_max,Catch rate per check,analogue,-0.2519,0.2519,4000
+CI-02b,sanction_probability,Chance caught lab is punished,scenario,-0.2449,0.2449,4000
+CI-02b,collusion_multiplier,How lenient they are,scenario,-0.2434,0.2434,4000

@@ -63,7 +63,7 @@ def test_flat_cap_hurts_large_developers_only():
 
 def test_ranges_load():
     ids = [i.instrument_id for i in load_instruments()]
-    assert ids == ["CI-02", "CI-03+04", "CI-05"]
+    assert ids == ["CI-02a", "CI-03+04", "CI-05", "CI-02b"]
 
 
 # ---- Added 20 Oct: per-instrument checking rates, punishment, scenarios, input checks ----

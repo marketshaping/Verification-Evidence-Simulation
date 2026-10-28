@@ -27,7 +27,8 @@ For a measuring instrument the alarm threshold is set so an honest developer is 
 
 ## What else is in the model
 
-- **Lenient verifiers (CI-02).** Some verifiers go easy on the lab that pays them. For those, the catch rate is multiplied by a factor below 1.
+- **Two kinds of verifier.** CI-02a checks whether a developer follows its own safety framework (it stops claims of a lower risk class). CI-02b checks declared compute against provider and metering records (it stops hidden compute, and is the verifier in the combined regime).
+- **Lenient verifiers (CI-02a, CI-02b).** Some verifiers go easy on the lab that pays them. For those, the catch rate is multiplied by a factor below 1.
 - **Few vs many developers.** Total compute is fixed. With 4 developers each is large; with 200 each is small. This only matters when fines have a **flat cap** (as in CA SB 53 and NY RAISE): a large developer's gain can exceed the cap, so no checking rate deters it (Figure 3). A cap that scales with size (EU AI Act) behaves like no cap.
 - **Uncertainty.** Every input is a range (low, central, high). Each run draws 2,000 sets of inputs and reports the spread.
 

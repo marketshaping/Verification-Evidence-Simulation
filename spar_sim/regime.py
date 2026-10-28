@@ -52,7 +52,7 @@ ROUTE_LABELS = {
 }
 INSTRUMENTS = ("verifier", "meter", "attestation", "satellite")
 INSTRUMENT_LABELS = {
-    "verifier": "CI-02 verifier",
+    "verifier": "CI-02b verifier",
     "meter": "CI-04 meter (attestation intact)",
     "attestation": "CI-03 tamper detection",
     "satellite": "CI-05 satellite imagery",
@@ -75,7 +75,7 @@ REGIME_LABELS = {
 def draw_inputs(instruments: dict[str, Instrument], regime: dict[str, Range], rng: np.random.Generator,
                 n: int, lenient_verifier: bool = False) -> dict[str, np.ndarray]:
     """Draw n worlds of every input the combined regime needs."""
-    v = instruments["CI-02"].draw(rng, n)
+    v = instruments["CI-02b"].draw(rng, n)  # compute reconciliation (Joon); same inputs as the old CI-02
     m = instruments["CI-03+04"].draw(rng, n)
     s = instruments["CI-05"].draw(rng, n)
     x = {k: r.draw(rng, n) for k, r in regime.items()}
