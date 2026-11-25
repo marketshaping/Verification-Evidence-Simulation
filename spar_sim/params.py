@@ -89,6 +89,13 @@ class Instrument:
             out[key] = take(key) if key in self.ranges else np.full(n, 0.0 if key == "collusion_share" else 1.0)
         # Drawn last so earlier draws, and so earlier runs, are unchanged.
         out["natural_audit_rate"] = take("natural_audit_rate") if "natural_audit_rate" in self.ranges else np.full(n, np.nan)
+        # Seventh run: a public body rechecks a share of verified reports (AN-02: 1.3% a year).
+        # A lenient verifier's misses can still be caught there, by a check assumed as good as an
+        # honest verifier. Kept as a fixed value, which uses no random draws, so earlier runs reproduce.
+        if "recheck_rate" in self.ranges:
+            r = take("recheck_rate")
+            d, cm = out["detection_max"], out["collusion_multiplier"]
+            out["collusion_multiplier"] = (1 - (1 - d * cm) * (1 - r * d)) / d
         return out
 
 

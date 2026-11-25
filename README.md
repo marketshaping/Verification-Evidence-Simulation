@@ -20,6 +20,7 @@ Every results folder holds a `manifest.json` (command, seed, code commit, packag
 
 ## Latest results
 
+- `results/seventh_run/RESULTS.md` (25 Nov): first coded analogue inputs (AN-02 recheck rate, AN-05 detection-by-size shape) and the cost of splitting a run.
 - `results/sixth_run/RESULTS.md` (21 Oct): CI-02 split into CI-02a (framework compliance) and CI-02b (compute reconciliation).
 - `results/fifth_run/RESULTS.md` (20 Oct): run size. Small, slow runs are the hard ones to deter.
 - `results/fourth_run/RESULTS.md` (20 Oct): the combined regime, where a cheater picks one route past all the checks. Also everything from the third run, unchanged.
@@ -40,7 +41,7 @@ Every results folder holds a `manifest.json` (command, seed, code commit, packag
 | `spar_sim/run.py` | Runs everything into one results folder |
 | `spar_sim/checks.py` | Input-file checks |
 | `spar_sim/plots.py` | Figures |
-| `tests/` | Tests (22) |
+| `tests/` | Tests (25) |
 | `results/` | One folder per run; earlier runs are kept for comparison |
 | `docs/MODEL.md` | How the model works and what it leaves out |
 | `docs/ADDING_EVIDENCE.md` | How to turn a coded row into inputs |

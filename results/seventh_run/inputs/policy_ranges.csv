@@ -1,0 +1,3 @@
+parameter,low,central,high,unit,status,source,note
+fine_multiple,1,5,20,fine per unit hidden / gain per unit hidden (a/p),scenario,policy_scenarios.csv,"Central matches the main runs (a = 50, p = 10). No real figure yet: under the US state laws there is no permit price, and labs face costs beyond fines"
+sanction_probability,0.3,1,1,probability a detected violation is punished,scenario,"AN-01 (Iran: Board referrals, not penalties)","Main runs assume 1. Detection often leads to dispute or referral instead of a penalty"

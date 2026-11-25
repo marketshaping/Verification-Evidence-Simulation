@@ -26,6 +26,8 @@ Status of each input (`evidence`, `analogue`, `scenario`) is in the `status` col
 | I6 | 21 Oct (was 13 Oct) | **CI-02 is two instruments.** CI-02a (framework compliance, Sidar) works on the risk-class margin. CI-02b (compute reconciliation, Joon) works on the compute margin and is the verifier in the combined regime. Both start from the old CI-02 inputs. | Sidar and Joon coded two different kinds of verifier (Joel, 21 Oct). Each maps onto one side of the model. | Measured catch rates for either; a record error for CI-02b, which would make it a measuring check. |
 | I7 | 13 Oct | **Pass/fail vs measuring checks.** Satellites and verifiers find the violation or don't. Meters read compute with error, and the alarm threshold is set so an honest developer is flagged at the false-alarm rate. | Matches how each instrument works. It produces the small "shaving" that fines can't remove (Figure 2). | — |
 | I8 | 13 Oct | **Lenient verifiers**: a share of developers have a verifier whose catch rate is multiplied by a factor below 1. | The verifier is paid by the lab it checks (AN-02). | A measured rate of verifier capture. |
+| I11 | 25 Nov | **A public recheck backs up a lenient verifier** at 1.3% of reports a year (AN-02), catching as well as an honest verifier. Fixed value, no random draws. | AN-02 shows the hired verifier checks everything and the authority rechecks a small share; that recheck is what catches a captured verifier. Assuming it's as good as an honest verifier flatters it. | A measured catch rate for authority rechecks, or a different recheck rate for compute. |
+| I12 | 25 Nov (was 20 Oct) | **Detection-by-size steepness 1–2** (was 1.5–3), from Global Fishing Watch (AN-05): about 2 in ship length, about 1 in area. The 3–10 MW midpoint is unchanged. Splitting cost 3–15% per site (was 1–8%), placeholder. | First measured size curve, though for ships that weren't hiding. Figure 8 shows the result only depends on whether splitting costs more than about 5% per site. | A data-centre detection-by-size curve; Vir's splitting-cost range. |
 
 ## Where numbers come from
 
@@ -58,7 +60,7 @@ Status of each input (`evidence`, `analogue`, `scenario`) is in the `status` col
 ## Open decisions
 
 - **Worst-case values (N1)** need agreeing with each coder pair.
-- **Sanction fields (N2) and new column O labels (N7):** to be agreed with Sidar and the coders.
+- **Sanction fields (N2) and new column O labels (N7):** the labels are agreed (4 Nov); they still need adding to the coding rules tab.
 - **Detection by site size:** the CI-05 row cites Koopmanschap & Barten, Table 5. The model's 3–10 MW midpoint should be replaced with those numbers once the paper is in hand.
-- **Run size (I9):** the 3–10 MW midpoint and the 1–8% per-site cost are guesses anchored on Clymer's misses. They need a coder's view.
+- **Run size (I9, I12):** the 3–10 MW midpoint is still a guess anchored on Clymer's misses. The curve's shape now comes from AN-05 (ships). The per-site cost (3–15%) awaits Vir; only whether it is above or below about 5% matters.
 - **Timeliness model (Q2):** not started.

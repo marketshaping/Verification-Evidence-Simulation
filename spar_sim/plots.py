@@ -259,7 +259,8 @@ def plot_weakest_link(head_rows, inst_rows, route_labels, path, verifier="honest
     plt.close(fig)
 
 
-def plot_size(rows, days_fn, path, current_multiple=5.0, worlds=2000):
+def plot_size(rows, days_fn, path, current_multiple=5.0, worlds=2000, site_text="imagery finds half of sites at 3–10 MW",
+              split_text="1–8%"):
     """Figure 7. Fine needed against the size of the hidden run."""
     titles = {"main": "Main ranges", "worst_case": "Worst case"}
     cols = {"main": "#2a78d6", "worst_case": "#eb6834"}
@@ -287,7 +288,7 @@ def plot_size(rows, days_fn, path, current_multiple=5.0, worlds=2000):
     ax.legend(fontsize=8, loc="upper right")
     fig.suptitle("Figure 7. Small, slow runs are the hard ones to deter", fontsize=10.5, x=0.01, ha="left")
     _footer(fig, f"Combined regime, honest verifier, {worlds:,} draws; line: median, band: 10th–90th percentile. The cheater splits the run "
-                 "across as many hidden sites as suits it; imagery finds half of sites at 3–10 MW; each extra site costs 1–8% of the gain. "
+                 f"across as many hidden sites as suits it; {site_text}; each extra site costs {split_text} of the gain. "
                  "Time axis assumes 40% utilisation.")
     fig.tight_layout(rect=(0, 0.07, 1, 0.95))
     fig.savefig(path, dpi=200)
@@ -300,3 +301,30 @@ def _days_label(days):
     if days >= 60:
         return f"{days / 30.4:.0f} mo"
     return f"{days:.0f} d"
+
+
+def plot_split_cost(rows, path, current_multiple=5.0, worlds=2000):
+    """Figure 8. Fine needed against the cost of each extra hidden site, for three run sizes."""
+    titles = {"main": "Main ranges", "worst_case": "Worst case"}
+    sizes = sorted({r["gpus"] for r in rows})
+    cols = dict(zip(sizes, ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]))
+    scens = list(dict.fromkeys(r["scenario"] for r in rows))
+    fig, axes = plt.subplots(1, len(scens), figsize=(7.4, 3.8), sharey=True, squeeze=False)
+    for ax, scen in zip(axes[0], scens):
+        for g in sizes:
+            sel = sorted((r for r in rows if r["scenario"] == scen and r["gpus"] == g), key=lambda r: r["split_cost_per_site"])
+            ax.plot([100 * r["split_cost_per_site"] for r in sel], [r["fine_needed_p50"] for r in sel],
+                    color=cols[g], lw=2, marker="o", ms=3, label=f"{g:,} GPUs")
+        ax.axhline(current_multiple, color=INK_2, ls=":", lw=1)
+        ax.set_yscale("log"); ax.set_ylim(1, 30)
+        ax.set_yticks([1, 2, 5, 10, 20], ["1×", "2×", "5×", "10×", "20×"]); ax.minorticks_off()
+        ax.set_title(titles.get(scen, scen), fontsize=9, loc="left")
+        ax.set_xlabel("Cost of each extra hidden site (% of the gain)")
+    axes[0][0].set_ylabel("Fine needed (multiple of gain)")
+    axes[0][0].legend(fontsize=7.5, loc="upper right")
+    fig.suptitle("Figure 8. Dearer splitting helps only small runs", fontsize=10.5, x=0.01, ha="left")
+    _footer(fig, f"Combined regime, honest verifier, {worlds:,} draws, median. Every other input as in Figure 7; "
+                 "only the cost of each extra site is fixed at the value shown. Dotted line: the 5× main assumption.")
+    fig.tight_layout(rect=(0, 0.07, 1, 0.94))
+    fig.savefig(path, dpi=200)
+    plt.close(fig)

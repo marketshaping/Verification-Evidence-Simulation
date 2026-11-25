@@ -200,7 +200,7 @@ def test_site_detection_is_half_at_p50():
 def test_one_huge_site_matches_size_free_route():
     # A very large run in one site is seen at the full catch rate, as in the fourth run.
     x = _regime_inputs(n=200)
-    need, sites = R.hidden_route_by_size(x, 1e9, max_sites=1)
+    need, sites = R.hidden_route_by_size(x, 1e12, max_sites=1)  # big enough for steepness 1 (seventh run)
     p = R.route_catch(x)["hidden_site"]
     assert np.allclose(need, (1 - x["hidden_site_cost"]) / p, rtol=1e-6) and np.all(sites == 1)
 
@@ -218,3 +218,45 @@ def test_bigger_runs_never_need_a_bigger_fine_for_the_hidden_route():
 def test_threshold_time_is_sensible():
     # 100k H100s at 40% utilisation reach 1e26 FLOP in about a month.
     assert 25 < R.days_to_threshold(100_000) < 35
+
+
+# ---- Added 25 Nov: seventh run ----
+
+def test_recheck_uses_no_random_draws_and_only_helps_a_lenient_verifier():
+    from spar_sim.params import Range
+    inst = {i.instrument_id: i for i in load_instruments()}["CI-02b"]
+    with_r = inst.draw(np.random.default_rng(5), 500)
+    without = dict(inst.ranges)
+    without.pop("recheck_rate")
+    inst_no = type(inst)(inst.instrument_id, inst.name, inst.margin, without)
+    no_r = inst_no.draw(np.random.default_rng(5), 500)
+    # Same draws for everything else, so earlier runs reproduce.
+    for k in ("detection_max", "collusion_share", "natural_audit_rate"):
+        assert np.array_equal(with_r[k], no_r[k])
+    # A recheck can only raise a lenient verifier's catch rate, and never above an honest one.
+    assert np.all(with_r["collusion_multiplier"] >= no_r["collusion_multiplier"])
+    assert np.all(with_r["collusion_multiplier"] <= 1)
+    # A zero recheck rate changes nothing.
+    zero = dict(inst.ranges, recheck_rate=Range(0.0, 0.0, 0.0, "scenario", ""))
+    z = type(inst)(inst.instrument_id, inst.name, inst.margin, zero).draw(np.random.default_rng(5), 500)
+    assert np.allclose(z["collusion_multiplier"], no_r["collusion_multiplier"])
+
+
+def test_dearer_splitting_never_needs_a_bigger_fine():
+    x = _regime_inputs(n=300)
+    prev = None
+    for c in (0.0, 0.01, 0.03, 0.08, 0.2):
+        need, _ = R.hidden_route_by_size(dict(x, split_cost_per_site=np.full(300, c)), 3000)
+        if prev is not None:
+            assert np.all(need <= prev + 1e-9)
+        prev = need
+
+
+def test_splitting_does_not_help_when_detection_grows_in_proportion_to_power():
+    # With steepness 1 and small sites, finding any of k sites is about as likely as finding one big one,
+    # so free splitting gains the cheater almost nothing.
+    x = _regime_inputs(n=50)
+    x = dict(x, site_steepness=np.full(50, 1.0), site_p50_mw=np.full(50, 1e4), split_cost_per_site=np.zeros(50))
+    one, _ = R.hidden_route_by_size(x, 3000, max_sites=1)
+    many, _ = R.hidden_route_by_size(x, 3000)
+    assert np.all(many <= one * 1.01)

@@ -1,6 +1,6 @@
 """Run everything and write one results folder.
 
-    python -m spar_sim.run --out results/third_run       # full run, about 3 minutes
+    python -m spar_sim.run --out results/seventh_run      # full run, about 2 minutes
     python -m spar_sim.run --quick                       # smoke test, writes results/scratch/
 
 The default output folder, results/scratch/, is ignored by git, so a test run
@@ -15,6 +15,7 @@ Outputs
   regime.csv, fig5_regime.png            combined regime: route choice vs multiplied catch rates
   regime_instruments.csv, regime_sensitivity.csv, fig6_weakest_link.png   which instrument to improve
   size.csv, fig7_size.png                fine needed against the size of a hidden run
+  split_cost.csv, fig8_split_cost.png    fine needed against the cost of each extra hidden site
   summary.csv, sweep.csv, fig_evasion_vs_audit_rate.png   one shared audit rate (as in runs 1 and 2)
   manifest.json, inputs/ what produced this folder
 """
@@ -38,6 +39,8 @@ from .params import load_instruments, load_policy, load_policy_ranges, load_regi
 
 ROOT = Path(__file__).resolve().parent.parent
 N_VALUES = (4, 200)
+SPLIT_COSTS = (0.0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.10, 0.15, 0.20, 0.30)
+SPLIT_SIZES = (3000, 10000, 30000)
 RHO_GRID = np.round(np.concatenate([np.arange(0.02, 0.3, 0.02), np.arange(0.3, 1.01, 0.05)]), 3)
 
 
@@ -205,8 +208,32 @@ def main(argv=None):
     for row in size_rows:
         row["days_to_1e26_flop"] = float(reg.days_to_threshold(row["gpus"]))
     write_csv(args.out / "size.csv", size_rows)
+    rr = load_regime()
+    pc = lambda r: f"{100 * r.low:g}–{100 * r.high:g}%"
     plots.plot_size(size_rows, reg.days_to_threshold, args.out / "fig7_size.png",
-                    policy["penalty_slope"] / policy["permit_price"], args.worlds)
+                    policy["penalty_slope"] / policy["permit_price"], args.worlds,
+                    site_text=f"imagery finds half of sites at {rr['site_p50_mw'].low:g}–{rr['site_p50_mw'].high:g} MW",
+                    split_text=pc(rr["split_cost_per_site"]))
+
+    # 8. Cost of splitting a run (added for the seventh run): the same worlds as step 7,
+    # with only the cost of each extra site fixed at each value, so any agreed range can be read off.
+    split_rows = []
+    for k, scen in enumerate(scenarios):
+        sc = None if scen == "main" else scen
+        insts = {i.instrument_id: i for i in load_instruments(scenario=sc)}
+        x = reg.draw_inputs(insts, load_regime(sc), np.random.default_rng([args.seed, 500 + k]), args.worlds)
+        for c in SPLIT_COSTS:
+            xc = dict(x, split_cost_per_site=np.full(args.worlds, c))
+            for g in SPLIT_SIZES:
+                r = reg.fine_needed_by_size(xc, float(g))
+                split_rows.append({"scenario": scen, "verifier": "honest", "split_cost_per_site": c, "gpus": g,
+                                   "fine_needed_p10": reg.pct(r["need"], 10), "fine_needed_p50": reg.pct(r["need"], 50),
+                                   "fine_needed_p90": reg.pct(r["need"], 90),
+                                   "sites_chosen_p50": float(np.median(r["sites"])),
+                                   "share_hidden_route_sets_fine": float(np.mean(r["hidden_sets_fine"]))})
+    write_csv(args.out / "split_cost.csv", split_rows)
+    plots.plot_split_cost(split_rows, args.out / "fig8_split_cost.png",
+                          policy["penalty_slope"] / policy["permit_price"], args.worlds)
 
     write_manifest(args.out, vars(args), {"runtime_seconds": round(time.time() - t0, 1)})
     print(f"Wrote results to {args.out} in {time.time() - t0:.0f} s")

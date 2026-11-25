@@ -1,5 +1,13 @@
 # Changelog
 
+## Seventh run, 25 November 2026
+- **First inputs from coded analogue rows.** AN-02 (Joon): a public recheck of 1.3% of verified reports a year, new `recheck_rate` rows for CI-02a and CI-02b. It applies only when the verifier is lenient, and is fixed so it uses no random draws. AN-05 (Vir): satellite detection steepness 1.0/1.5/2.0, was 1.5/2.0/3.0.
+- **Cost of each extra hidden site** raised to 3–15% (was 1–8%), as agreed on 18 Nov; the range is a placeholder until agreed with Vir.
+- **New output:** `split_cost.csv` and Figure 8, the fine needed across splitting costs from 0% to 30% per site.
+- Figure 7's footnote now reads its ranges from the input file.
+- Honest-verifier results and the size-free combined regime reproduce the sixth run exactly.
+- **Tests:** 25, up from 22. One old test used a site that is no longer large enough under a steepness of 1; it now uses a larger one.
+
 ## Sixth run, 21 October 2026
 - **CI-02 split** into CI-02a (framework compliance, Sidar; risk-class margin) and CI-02b (compute reconciliation, Joon; compute margin). CI-02b is the verifier in the combined regime. Both start from the old CI-02 inputs; CI-02a's catch rate is now marked a guess.
 - Everything from the fifth run reproduces exactly. CI-02b was added last so other instruments keep their random draws.

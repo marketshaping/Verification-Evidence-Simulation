@@ -1,0 +1,28 @@
+{
+  "created_utc": "2026-11-25T14:51:30+00:00",
+  "command": "python -m spar_sim.run --out results/seventh_run",
+  "args": {
+    "out": "results/seventh_run",
+    "worlds": "2000",
+    "seed": "20261014",
+    "scenarios": "main,worst_case",
+    "quick": "False"
+  },
+  "git_commit": null,
+  "uncommitted_changes": null,
+  "python": "3.13.18",
+  "packages": {
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "matplotlib": "3.11.2"
+  },
+  "inputs_sha256": {
+    "placeholder_ranges.csv": "8c41eb2a98125902be416f81407690c61a3a0117a16db2065aba338f7f06555a",
+    "policy_ranges.csv": "b73d49ba697ec9b401ce065dede669daad701003d09e694bf0f2eeeaad251ad9",
+    "policy_scenarios.csv": "9909f7511dbcd1ddf5399951bd7b8996c28c67345a4ddcb3c97e2e964361ea4c",
+    "regime.csv": "92d3c3f410dc68ec893ed475d4e6bbdce8bb05e72fd621b956c53b573d40f1d8",
+    "scenarios/worst_case.csv": "61b31330776b2762ce568d8d7beebeed7d045bfe3bf4b7d472e4ed7e6f24bc65"
+  },
+  "runtime_seconds": 185.7,
+  "note": "Run in a copy of the repo outside git, so no commit is recorded; the code is the commit that adds this folder."
+}
